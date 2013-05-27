@@ -1,6 +1,17 @@
 *.class
-
-# Package Files #
+*.bin
+*.swp
+*~
+*tmp
 *.jar
 *.war
 *.ear
+*.aux
+*.log
+*.pdf
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
+*.dvi
+/bin
