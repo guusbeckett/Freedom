@@ -6,10 +6,15 @@ package nl.reupload.freedompainter;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
+
 import javax.swing.*;
 
 
 public class Paint{
+	private PadDraw drawPad;
+
 	public Paint() {
 		Icon iconB = new ImageIcon("blue.gif");
 		//the blue image icon
@@ -31,7 +36,7 @@ public class Paint{
 		content.setLayout(new BorderLayout());
 		//sets the layout
 		
-		final PadDraw drawPad = new PadDraw();
+		drawPad = new PadDraw();
 		//creates a new padDraw, which is pretty much the paint program
 		
 		content.add(drawPad, BorderLayout.CENTER);
@@ -121,6 +126,13 @@ public class Paint{
 		frame.setVisible(true);
 		//makes it so you can see it
 	}
+	
+	public Image getImage() {
+		return drawPad.getImage();
+	}
+	public void mergeImage(Image image) {
+		drawPad.mergeImage(image);
+	}
 }
 
 
@@ -137,7 +149,10 @@ class PadDraw extends JComponent{
 	}
 	
 	public void mergeImage(Image image) {
-		this.image.getGraphics().drawImage(image, 1, 1, null);
+		Graphics2D g2d = (Graphics2D) image.getGraphics();
+		g2d.drawImage(image, 0, 0, null);
+		g2d.drawImage(this.image, 0, 0, null);
+	//	this.image.getGraphics().drawImage(image, 1, 1, null);
 	}
 	//Now for the constructors
 	public PadDraw(){
@@ -177,7 +192,7 @@ class PadDraw extends JComponent{
 		}
 		
 		g.drawImage(image, 0, 0, null);
-		//mergeImage(image);
+		mergeImage(image);
 	}
 //	this is the painting bit
 //	if it has nothing on it then
@@ -224,6 +239,3 @@ class PadDraw extends JComponent{
 	//green paint
 
 }
-
-
-//good job, you've made your paint program =]
