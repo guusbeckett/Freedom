@@ -8,15 +8,15 @@ import javax.swing.*;
 
 public class Paint{
 	public static void main(String[] args){
-		Icon iconB = new ImageIcon("blue.gif");
+		Icon iconB = new ImageIcon("./img/blue.gif");
 		//the blue image icon
-		Icon iconM = new ImageIcon("magenta.gif");
+		Icon iconM = new ImageIcon("./img/magenta.gif");
 		//magenta image icon
-		Icon iconR = new ImageIcon("red.gif");
+		Icon iconR = new ImageIcon("./img/red.gif");
 		//red image icon
-		Icon iconBl = new ImageIcon("black.gif");
+		Icon iconBl = new ImageIcon("./img/black.gif");
 		//black image icon
-		Icon iconG = new ImageIcon("green.gif");
+		Icon iconG = new ImageIcon("./img/green.gif");
 		//finally the green image icon
 		//These will be the images for our colors.
 		
@@ -111,7 +111,7 @@ public class Paint{
 		content.add(panel, BorderLayout.WEST);
 		//sets the panel to the left
 		
-		frame.setSize(300, 300);
+		frame.setSize(800, 800);
 		//sets the size of the frame
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//makes it so you can close
