@@ -132,6 +132,13 @@ class PadDraw extends JComponent{
 	int currentX, currentY, oldX, oldY;
 	//these are gonna hold our mouse coordinates
 
+	public Image getImage() {
+		return image;
+	}
+	
+	public void mergeImage(Image image) {
+		this.image.getGraphics().drawImage(image, 1, 1, null);
+	}
 	//Now for the constructors
 	public PadDraw(){
 		setDoubleBuffered(false);
@@ -168,8 +175,9 @@ class PadDraw extends JComponent{
 			clear();
 
 		}
-		System.out.println(image);
+		
 		g.drawImage(image, 0, 0, null);
+		//mergeImage(image);
 	}
 //	this is the painting bit
 //	if it has nothing on it then
