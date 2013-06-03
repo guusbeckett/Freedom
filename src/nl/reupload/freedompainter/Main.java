@@ -9,6 +9,6 @@ public class Main {
 
 	public static void main(String[] args){
 		paint = new Paint();
-		client = new ConnectionClient();
+		client = new ConnectionClient(paint);
 	}
 }
