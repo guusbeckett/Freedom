@@ -22,7 +22,6 @@ public class ConnectionClient {
 	public ConnectionClient(Paint paint) {
 		this.paint = paint;
 		try {
-            serverSocket = new ServerSocket(3038);
             clientSocket = new Socket("localhost", 3038);
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             in = new ObjectInputStream(clientSocket.getInputStream());
