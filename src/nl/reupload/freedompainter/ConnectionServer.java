@@ -3,6 +3,9 @@ package nl.reupload.freedompainter;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+
 public class ConnectionServer {
 
 	private ServerSocket serverSocket;
@@ -14,20 +17,42 @@ public class ConnectionServer {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						new ConnectionHandler(serverSocket.accept());
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+//			try {
+//				new ConnectionHandler(serverSocket.accept());
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			SwingUtilities.invokeLater(new Runnable() {
+			
+				@Override
+				public void run() {
+					while (true) {
+						try {
+							new ConnectionHandler(serverSocket.accept());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
+					
 				}
-				
-			}
-		});
-		t.run();
+			});
+//		Thread t = new Thread(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				while (true) {
+//					try {
+//						new ConnectionHandler(serverSocket.accept());
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//				
+//			}
+//		});
+//		t.run();
 	}
 }
