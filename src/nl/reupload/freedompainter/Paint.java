@@ -14,6 +14,7 @@ import javax.swing.*;
 
 public class Paint{
 	private PadDraw drawPad;
+	private ConnectionServer server;
 
 	public Paint() {
 		Icon iconB = new ImageIcon("blue.gif");
@@ -122,6 +123,30 @@ public class Paint{
 		frame.setSize(800, 600);
 		//sets the size of the frame
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JMenuBar menubar = new JMenuBar();
+		JMenu fileMenu = new JMenu("File");
+		frame.setJMenuBar(menubar);
+		menubar.add(fileMenu);
+		JMenuItem item = new JMenuItem("start server");
+		item.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				server = new ConnectionServer();
+				
+			}
+		});
+		fileMenu.add(item);
+		JMenuItem item2 = new JMenuItem("start client");
+		item2.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		});
+		fileMenu.add(item2);
 		//makes it so you can close
 		frame.setVisible(true);
 		//makes it so you can see it

@@ -8,11 +8,26 @@ public class ConnectionServer {
 	private ServerSocket serverSocket;
 
 	public ConnectionServer () {
-		  try {
+		try {
 			serverSocket = new ServerSocket(3038);
-		} catch (IOException e) {
+		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						new ConnectionHandler(serverSocket.accept());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+			}
+		});
+		t.run();
 	}
 }

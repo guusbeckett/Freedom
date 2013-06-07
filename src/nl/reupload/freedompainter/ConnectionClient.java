@@ -13,7 +13,6 @@ import java.net.UnknownHostException;
 
 public class ConnectionClient {
 	
-	private ServerSocket serverSocket = null;
 	private Socket clientSocket = null;
 	private Paint paint;
 	private ObjectOutputStream out;
