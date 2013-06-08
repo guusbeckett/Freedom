@@ -177,6 +177,7 @@ public class Paint{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				client = new ConnectionClient(paint, "127.0.0.1");
+				drawPad.setClient(client);
 			}
 		});
 		fileMenu.add(item2);
@@ -188,8 +189,8 @@ public class Paint{
 	public Image getImage() {
 		return drawPad.getImage();
 	}
-	public void mergeImage(Image image) {
-		drawPad.mergeImage(image);
+	public void mergeImage() {
+		drawPad.mergeImage();
 	}
 }
 
@@ -201,16 +202,30 @@ class PadDraw extends JComponent{
 	//this is what we'll be using to draw on
 	int currentX, currentY, oldX, oldY;
 	//these are gonna hold our mouse coordinates
+	private ConnectionClient recient;
+
+	public ConnectionClient getClient() {
+		return recient;
+	}
+
+	public void setClient(ConnectionClient client) {
+		this.recient = client;
+	}
 
 	public Image getImage() {
 		return image;
 	}
 	
-	public void mergeImage(Image image) {
-		Graphics2D g2d = (Graphics2D) image.getGraphics();
-		g2d.drawImage(image, 0, 0, null);
-		g2d.drawImage(this.image, 0, 0, null);
-	//	this.image.getGraphics().drawImage(image, 1, 1, null);
+	public void mergeImage() {
+		if (image != null && recient != null) {
+			Image image = recient.getImage();
+			if (image != null) {
+				Graphics2D g2d = (Graphics2D) image.getGraphics();
+				g2d.drawImage(image, 0, 0, null);
+				g2d.drawImage(this.image, 0, 0, null);
+			}
+		}
+	//	this.image.getGraphics().dra wImage(image, 1, 1, null);
 	}
 	//Now for the constructors
 	public PadDraw(){
@@ -229,7 +244,11 @@ class PadDraw extends JComponent{
 				currentY = e.getY();
 				if(graphics2D != null)
 				graphics2D.drawLine(oldX, oldY, currentX, currentY);
+				mergeImage();
 				repaint();
+				if (recient != null) {
+					recient.sendImage(image);
+				}
 				oldX = currentX;
 				oldY = currentY;
 			}
@@ -250,7 +269,7 @@ class PadDraw extends JComponent{
 		}
 		
 		g.drawImage(image, 0, 0, null);
-		mergeImage(image);
+		
 	}
 //	this is the painting bit
 //	if it has nothing on it then

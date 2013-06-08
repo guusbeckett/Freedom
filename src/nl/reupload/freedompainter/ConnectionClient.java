@@ -56,8 +56,7 @@ public class ConnectionClient {
 		try {
 			out.writeObject(image);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Sending image to server failed");
 		}
 	}
 
@@ -67,11 +66,9 @@ public class ConnectionClient {
 			if (in.available() > 0)
 				return (Image) in.readObject();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("No Class Found");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("IOException occured");
 		}
 		return null;
 	}
