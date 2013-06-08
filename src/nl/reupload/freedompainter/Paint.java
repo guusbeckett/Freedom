@@ -8,6 +8,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 import javax.swing.*;
 
@@ -29,7 +33,7 @@ public class Paint{
 		//finally the green image icon
 		//These will be the images for our colors.
 		
-		JFrame frame = new JFrame("Paint It");
+		final JFrame frame = new JFrame("Paint It");
 		//Creates a frame with a title of "Paint it"
 		
 		Container content = frame.getContentPane();
@@ -134,6 +138,33 @@ public class Paint{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				server = new ConnectionServer();
+				String net = "You are running a Freedom server on:\n";
+				Enumeration<NetworkInterface> interfaces;
+				try {
+					interfaces = NetworkInterface.getNetworkInterfaces();
+					while (interfaces.hasMoreElements()){
+					    NetworkInterface current = interfaces.nextElement();
+					    net+=current+"\n";
+					    try {
+							if (!current.isUp() || current.isLoopback() || current.isVirtual()) continue;
+							Enumeration<InetAddress> addresses = current.getInetAddresses();
+						    while (addresses.hasMoreElements()){
+						        InetAddress current_addr = addresses.nextElement();
+						        if (current_addr.isLoopbackAddress()) continue;
+						        net+=current_addr.getHostAddress()+"\n";
+						    }
+						} catch (SocketException e) {
+							JOptionPane.showMessageDialog(frame, net, "server notify", JOptionPane.ERROR_MESSAGE);
+						}
+						JOptionPane.showMessageDialog(frame, net, "server notify", JOptionPane.INFORMATION_MESSAGE);
+					    
+					}
+				} catch (SocketException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
 				
 			}
 		});
@@ -143,7 +174,10 @@ public class Paint{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
+				JInternalFrame dialog = new JInternalFrame();
+				JPanel panel1 = new JPanel();
+				dialog.add(panel1);
+				dialog.show();
 			}
 		});
 		fileMenu.add(item2);

@@ -12,47 +12,34 @@ public class ConnectionServer {
 
 	public ConnectionServer () {
 		try {
+			System.out.println("Server starting");
 			serverSocket = new ServerSocket(3038);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-//			try {
-//				new ConnectionHandler(serverSocket.accept());
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			SwingUtilities.invokeLater(new Runnable() {
-			
-				@Override
-				public void run() {
-					while (true) {
-						try {
-							new ConnectionHandler(serverSocket.accept());
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+		SwingWorker<Integer, Boolean> worker = new SwingWorker<Integer, Boolean>() {
+
+			@Override
+			protected Integer doInBackground() throws Exception {
+				Thread t = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						while (true) {
+							try {
+								new ConnectionHandler(serverSocket.accept());
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 					}
-					
-				}
-			});
-//		Thread t = new Thread(new Runnable() {
-//			
-//			@Override
-//			public void run() {
-//				while (true) {
-//					try {
-//						new ConnectionHandler(serverSocket.accept());
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
-//				
-//			}
-//		});
-//		t.run();
+				});
+				t.run();
+				return 0;
+			}
+		};
+		
 	}
 }
