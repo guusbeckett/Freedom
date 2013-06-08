@@ -11,6 +11,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import javax.swing.SwingWorker;
+
 public class ConnectionClient {
 	
 	private Socket clientSocket = null;
@@ -18,20 +20,36 @@ public class ConnectionClient {
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
 
-	public ConnectionClient(Paint paint, String hostIP) {
+	public ConnectionClient(Paint paint, final String hostIP) {
 		this.paint = paint;
-		try {
-            clientSocket = new Socket(hostIP, 3038);
-            out = new ObjectOutputStream(clientSocket.getOutputStream());
-            in = new ObjectInputStream(clientSocket.getInputStream());
-        } catch (UnknownHostException e) {
-            System.err.println("Cannot find host, socket init failed");
-            //System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Couldn't get I/O for socket");
-            e.printStackTrace();
-//            System.exit(1);
-        }
+		
+        SwingWorker<Integer, Boolean> worker = new SwingWorker<Integer, Boolean>() {
+
+			@Override
+			protected Integer doInBackground() throws Exception {
+				Thread t = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+				            clientSocket = new Socket(hostIP, 3038);
+				            out = new ObjectOutputStream(clientSocket.getOutputStream());
+				            in = new ObjectInputStream(clientSocket.getInputStream());
+				        } catch (UnknownHostException e) {
+				            System.err.println("Cannot find host, socket init failed");
+				            //System.exit(1);
+				        } catch (IOException e) {
+				            System.err.println("Couldn't get I/O for socket");
+				            e.printStackTrace();
+//				            System.exit(1);
+				        }
+					}
+				});
+				t.run();
+				return 0;
+			}
+		};
+		worker.execute();
 	}
 
 	public void sendImage(Image image) {
