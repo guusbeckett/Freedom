@@ -18,10 +18,10 @@ public class ConnectionClient {
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
 
-	public ConnectionClient(Paint paint) {
+	public ConnectionClient(Paint paint, String hostIP) {
 		this.paint = paint;
 		try {
-            clientSocket = new Socket("localhost", 3038);
+            clientSocket = new Socket(hostIP, 3038);
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             in = new ObjectInputStream(clientSocket.getInputStream());
         } catch (UnknownHostException e) {

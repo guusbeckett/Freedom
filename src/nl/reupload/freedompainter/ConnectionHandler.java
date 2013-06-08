@@ -7,5 +7,6 @@ public class ConnectionHandler {
 
 	public ConnectionHandler(Socket socket) {
 		clientSocket = socket;
+		System.out.println("Server: Accepted "+ socket.getInetAddress());
 	}
 }

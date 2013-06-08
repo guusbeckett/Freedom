@@ -19,6 +19,7 @@ import javax.swing.*;
 public class Paint{
 	private PadDraw drawPad;
 	private ConnectionServer server;
+	protected ConnectionClient client;
 
 	public Paint() {
 		Icon iconB = new ImageIcon("blue.gif");
@@ -132,6 +133,7 @@ public class Paint{
 		JMenu fileMenu = new JMenu("File");
 		frame.setJMenuBar(menubar);
 		menubar.add(fileMenu);
+		final Paint paint = this;
 		JMenuItem item = new JMenuItem("start server");
 		item.addActionListener(new ActionListener() {
 			
@@ -174,10 +176,7 @@ public class Paint{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JInternalFrame dialog = new JInternalFrame();
-				JPanel panel1 = new JPanel();
-				dialog.add(panel1);
-				dialog.show();
+				client = new ConnectionClient(paint, "127.0.0.1");
 			}
 		});
 		fileMenu.add(item2);

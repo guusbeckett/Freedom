@@ -27,6 +27,7 @@ public class ConnectionServer {
 					@Override
 					public void run() {
 						while (true) {
+							System.out.println("Server: Waiting for clients...");
 							try {
 								new ConnectionHandler(serverSocket.accept());
 							} catch (IOException e) {
@@ -40,6 +41,7 @@ public class ConnectionServer {
 				return 0;
 			}
 		};
+		worker.execute();
 		
 	}
 }
