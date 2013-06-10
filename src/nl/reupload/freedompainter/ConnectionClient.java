@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
 public class ConnectionClient {
@@ -52,11 +53,12 @@ public class ConnectionClient {
 		worker.execute();
 	}
 
-	public void sendImage(Image image) {
+	public void sendImage(ImageIcon image) {
 		try {
 			out.writeObject(image);
 		} catch (IOException e) {
 			System.out.println("Sending image to server failed");
+			e.printStackTrace();
 		}
 	}
 

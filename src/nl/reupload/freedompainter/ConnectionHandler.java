@@ -32,10 +32,12 @@ public class ConnectionHandler {
 								
 								@Override
 								 public void run() {
+									Object o;
 						            while (true) {
 						                try {
-						                    Object o = in.readObject();
+						                    o = in.readObject();
 						                    System.out.println("Server: Read object: "+o);
+						                    in = new ObjectInputStream(clientSocket.getInputStream());
 						                } catch (IOException e) {
 						                	System.out.println("Server: Client disconnect!");
 						                	break;

@@ -247,7 +247,7 @@ class PadDraw extends JComponent{
 				mergeImage();
 				repaint();
 				if (recient != null) {
-					recient.sendImage(image);
+					recient.sendImage(new ImageIcon(image));
 				}
 				oldX = currentX;
 				oldY = currentY;
