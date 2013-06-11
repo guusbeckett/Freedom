@@ -22,15 +22,15 @@ public class Paint{
 	protected ConnectionClient client;
 
 	public Paint() {
-		Icon iconB = new ImageIcon("blue.gif");
+		Icon iconB = new ImageIcon("./img/blue.png");
 		//the blue image icon
-		Icon iconM = new ImageIcon("magenta.gif");
+		Icon iconM = new ImageIcon("./img/magenta.png");
 		//magenta image icon
-		Icon iconR = new ImageIcon("red.gif");
+		Icon iconR = new ImageIcon("./img/red.png");
 		//red image icon
-		Icon iconBl = new ImageIcon("black.gif");
+		Icon iconBl = new ImageIcon("./img/black.png");
 		//black image icon
-		Icon iconG = new ImageIcon("green.gif");
+		Icon iconG = new ImageIcon("./img/green.png");
 		//finally the green image icon
 		//These will be the images for our colors.
 		
