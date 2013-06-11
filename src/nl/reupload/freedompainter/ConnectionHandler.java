@@ -37,7 +37,6 @@ public class ConnectionHandler {
 						                try {
 						                    o = in.readObject();
 						                    System.out.println("Server: Read object: "+o);
-						                    in = new ObjectInputStream(clientSocket.getInputStream());
 						                } catch (IOException e) {
 						                	System.out.println("Server: Client disconnect!");
 						                	break;
@@ -45,6 +44,11 @@ public class ConnectionHandler {
 						                } catch (ClassNotFoundException e) {
 						                    e.printStackTrace();
 						                }
+//						                try {
+//											in.reset();
+//										} catch (IOException e) {
+//											e.printStackTrace();
+//										}
 						            }
 						        }
 							});

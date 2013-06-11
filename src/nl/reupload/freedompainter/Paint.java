@@ -236,6 +236,16 @@ class PadDraw extends JComponent{
 				oldY = e.getY();
 			}
 		});
+		new Timer(100, new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (recient != null) {
+					recient.sendImage(new ImageIcon(image));
+				}
+				
+			}
+		}).start();
 		//if the mouse is pressed it sets the oldX & oldY
 		//coordinates as the mouses x & y coordinates
 		addMouseMotionListener(new MouseMotionAdapter(){
@@ -246,9 +256,6 @@ class PadDraw extends JComponent{
 				graphics2D.drawLine(oldX, oldY, currentX, currentY);
 				mergeImage();
 				repaint();
-				if (recient != null) {
-					recient.sendImage(new ImageIcon(image));
-				}
 				oldX = currentX;
 				oldY = currentY;
 			}

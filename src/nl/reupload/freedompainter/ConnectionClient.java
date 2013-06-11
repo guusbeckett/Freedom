@@ -54,11 +54,14 @@ public class ConnectionClient {
 	}
 
 	public void sendImage(ImageIcon image) {
-		try {
-			out.writeObject(image);
-		} catch (IOException e) {
-			System.out.println("Sending image to server failed");
-			e.printStackTrace();
+		if (image != null) {
+			try {
+				out.writeObject(image);
+				out.reset();
+			} catch (IOException e) {
+				System.out.println("Sending image to server failed");
+				e.printStackTrace();
+			}
 		}
 	}
 
