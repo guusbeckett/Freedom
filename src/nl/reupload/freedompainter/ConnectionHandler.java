@@ -5,10 +5,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
 public class ConnectionHandler {
 	private Socket clientSocket;
+	private ImageIcon imageIcon;
 
 	public ConnectionHandler(final Socket socket) {
 		
@@ -36,7 +38,7 @@ public class ConnectionHandler {
 						            while (true) {
 						                try {
 						                    o = in.readObject();
-						                    System.out.println("Server: Read object: "+o);
+						                    imageIcon = (ImageIcon) o;
 						                } catch (IOException e) {
 						                	System.out.println("Server: Client disconnect!");
 						                	break;
@@ -64,5 +66,15 @@ public class ConnectionHandler {
 			}
 		};
 		worker.execute();
+	}
+
+	public ImageIcon getImageIcon() {
+		// TODO Auto-generated method stub
+		return imageIcon;
+	}
+
+	public void sendImageArray(ImageIcon[] images) {
+		// TODO Auto-generated method stub
+		
 	}
 }
