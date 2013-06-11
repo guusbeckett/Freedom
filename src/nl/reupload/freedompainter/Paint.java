@@ -125,7 +125,7 @@ public class Paint{
 		content.add(panel, BorderLayout.WEST);
 		//sets the panel to the left
 		
-		frame.setSize(800, 600);
+		frame.setSize(1000, 600);
 		//sets the size of the frame
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -225,7 +225,7 @@ class PadDraw extends JComponent{
 				g2d.drawImage(this.image, 0, 0, null);
 			}
 		}
-	//	this.image.getGraphics().dra wImage(image, 1, 1, null);
+	//	this.image.getGraphics().drawImage(image, 1, 1, null);
 	}
 	//Now for the constructors
 	public PadDraw(){
@@ -268,7 +268,7 @@ class PadDraw extends JComponent{
 
 	public void paintComponent(Graphics g){
 		if(image == null){
-			image = createImage(getSize().width, getSize().height);
+			image = createImage(getSize().width-300, getSize().height);
 			graphics2D = (Graphics2D)image.getGraphics();
 			graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			clear();
@@ -288,7 +288,7 @@ class PadDraw extends JComponent{
 
 	public void clear(){
 		graphics2D.setPaint(Color.white);
-		graphics2D.fillRect(0, 0, getSize().width, getSize().height);
+		graphics2D.fillRect(0, 0, getSize().width-300, getSize().height);
 		graphics2D.setPaint(Color.black);
 		repaint();
 	}
