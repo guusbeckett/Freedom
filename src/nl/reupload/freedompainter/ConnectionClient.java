@@ -10,9 +10,12 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.sql.Array;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
+
+import nl.reupload.freedompainter.ConnectionClient.iconListener;
 
 public class ConnectionClient {
 	
@@ -20,6 +23,7 @@ public class ConnectionClient {
 	private Paint paint;
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
+	private iconListener listener;
 
 	public ConnectionClient(Paint paint, final String hostIP) {
 		this.paint = paint;
@@ -37,7 +41,17 @@ public class ConnectionClient {
 				            out = new ObjectOutputStream(clientSocket.getOutputStream());
 				            in = new ObjectInputStream(clientSocket.getInputStream());
 				            //TODO maak thread om op icons te wachten en interface om naar te luisteren
-				        } catch (UnknownHostException e) {
+				            Thread iconWaiter = new Thread(new Runnable() {
+								
+								@Override
+								public void run() {
+									if (listener != null)
+									listener.giveImages(getImage());
+									
+									
+								}
+							});
+						} catch (UnknownHostException e) {
 				            System.err.println("Cannot find host, socket init failed");
 				            //System.exit(1);
 				        } catch (IOException e) {
@@ -75,5 +89,16 @@ public class ConnectionClient {
 			System.err.println("IOException occured");
 		}
 		return null;
+	} //Listener
+	
+	public interface iconListener
+	{
+		public abstract void giveImages(ImageIcon[] listImages);
+	}
+	
+	public void setListener(iconListener listener)
+	{
+		this.listener = listener;
+		
 	}
 }
