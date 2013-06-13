@@ -45,12 +45,18 @@ public class ConnectionClient {
 								
 								@Override
 								public void run() {
-									if (listener != null)
-									listener.giveImages(getImage());
+									while (true) {
+										if (listener != null) {
+											System.out.println("Client: Waiting for images");
+											listener.giveImages(getImage());
+											System.out.println("Client: images recieved");
+										}
+									}
 									
 									
 								}
 							});
+				            iconWaiter.start();
 						} catch (UnknownHostException e) {
 				            System.err.println("Cannot find host, socket init failed");
 				            //System.exit(1);

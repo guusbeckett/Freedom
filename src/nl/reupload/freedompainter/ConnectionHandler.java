@@ -83,4 +83,9 @@ public class ConnectionHandler {
 			}
 		}
 	}
+
+	public String getIP() {
+		// TODO Auto-generated method stub
+		return clientSocket.getInetAddress().toString();
+	}
 }

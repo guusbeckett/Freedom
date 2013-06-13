@@ -30,6 +30,32 @@ public class ConnectionServer {
 					
 					@Override
 					public void run() {
+						Thread handleImages = new Thread(new Runnable() {
+							
+							@Override
+							public void run() {
+								System.out.println("Server imageHandler starting");
+								while (true) {
+									try {
+										Thread.sleep(100);
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									ImageIcon[] images = new ImageIcon[handlers.size()];
+									for (int i=0; i<handlers.size(); i++) {
+										images[i] = handlers.get(i).getImageIcon();
+									}
+									System.out.println("Server: Sent "+images.length+ " images");
+									for (ConnectionHandler handle : handlers) {
+										
+										handle.sendImageArray(images);
+									}
+								}
+								
+							}
+						});
+						handleImages.start();
 						while (true) {
 							System.out.println("Server: Waiting for clients...");
 							try {
@@ -38,16 +64,13 @@ public class ConnectionServer {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							ImageIcon[] images = new ImageIcon[handlers.size()];
-							for (int i=0; i<handlers.size(); i++) {
-								images[i] = handlers.get(i).getImageIcon();
-							}
-							for (ConnectionHandler handle : handlers)
-								handle.sendImageArray(images);
+							
+							
 						}
 					}
 				});
 				t.run();
+				
 				return 0;
 			}
 		};

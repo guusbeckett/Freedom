@@ -6,6 +6,7 @@ package nl.reupload.freedompainter;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.net.InetAddress;
@@ -20,6 +21,7 @@ public class Paint{
 	private PadDraw drawPad;
 	private ConnectionServer server;
 	protected ConnectionClient client;
+	private previewPanel previewPanel;
 
 	public Paint() {
 		Icon iconB = new ImageIcon("./img/blue.png");
@@ -43,8 +45,10 @@ public class Paint{
 		//sets the layout
 		
 		drawPad = new PadDraw();
+		previewPanel = new previewPanel();
 		//creates a new padDraw, which is pretty much the paint program
-		
+		previewPanel.setPreferredSize(new Dimension(100, 300));
+		content.add(previewPanel, BorderLayout.EAST);
 		content.add(drawPad, BorderLayout.CENTER);
 		//sets the padDraw in the center
 		
@@ -178,6 +182,7 @@ public class Paint{
 			public void actionPerformed(ActionEvent arg0) {
 				client = new ConnectionClient(paint, "127.0.0.1");
 				drawPad.setClient(client);
+				previewPanel.setClient(client);
 			}
 		});
 		fileMenu.add(item2);
@@ -242,11 +247,11 @@ class PadDraw extends JComponent{
 			public void actionPerformed(ActionEvent arg0) {
 				if (recient != null) {
 					recient.sendImage(new ImageIcon(image));
-					ImageIcon[] list = recient.getImage();
-					if (list != null) {
-						for (ImageIcon icon : list)
-							System.out.println(icon);
-					}
+//					ImageIcon[] list = recient.getImage();
+//					if (list != null) {
+//						for (ImageIcon icon : list)
+//							System.out.println(icon);
+//					}
 				}
 				
 			}
@@ -333,18 +338,29 @@ class PadDraw extends JComponent{
 class previewPanel extends JPanel implements ConnectionClient.iconListener 
 {
 	private ConnectionClient connectionClient;
+	private ImageIcon[] icons;
 
 	public previewPanel() {
-		
 	}
 	
 	public void paintComponent(Graphics g){
-		
+			Graphics2D g2 = (Graphics2D)g;
+			if (icons != null) {
+				int y = 50;
+				for (ImageIcon icon : icons) {
+					g2.drawImage(icon.getImage(), 0, y, 100, 100, null);
+					y+=150;
+				}
+			}
 		}
 
 	@Override
 	public void giveImages(ImageIcon[] listImages) {
-		
+//		for (ImageIcon icon : listImages)
+//			System.out.println(icon);
+		icons = listImages;
+		System.out.println(icons.length);
+		repaint();
 	}
 	
 	public void setClient(ConnectionClient connectionClient)
