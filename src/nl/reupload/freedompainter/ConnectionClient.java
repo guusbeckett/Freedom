@@ -65,11 +65,10 @@ public class ConnectionClient {
 		}
 	}
 
-	public Image getImage() {
-		// TODO stub method
+	public ImageIcon[] getImage() {
 		try {
 			if (in.available() > 0)
-				return (Image) in.readObject();
+				return (ImageIcon[]) in.readObject();
 		} catch (ClassNotFoundException e) {
 			System.err.println("No Class Found");
 		} catch (IOException e) {

@@ -218,7 +218,7 @@ class PadDraw extends JComponent{
 	
 	public void mergeImage() {
 		if (image != null && recient != null) {
-			Image image = recient.getImage();
+			//Image image = recient.getImage();
 			if (image != null) {
 				Graphics2D g2d = (Graphics2D) image.getGraphics();
 				g2d.drawImage(image, 0, 0, null);
@@ -242,6 +242,11 @@ class PadDraw extends JComponent{
 			public void actionPerformed(ActionEvent arg0) {
 				if (recient != null) {
 					recient.sendImage(new ImageIcon(image));
+					ImageIcon[] list = recient.getImage();
+					if (list != null) {
+						for (ImageIcon icon : list)
+							System.out.println(icon);
+					}
 				}
 				
 			}

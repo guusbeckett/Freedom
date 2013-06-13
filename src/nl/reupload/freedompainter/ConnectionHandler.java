@@ -11,6 +11,7 @@ import javax.swing.SwingWorker;
 public class ConnectionHandler {
 	private Socket clientSocket;
 	private ImageIcon imageIcon;
+	private ObjectOutputStream out;
 
 	public ConnectionHandler(final Socket socket) {
 		
@@ -20,7 +21,6 @@ public class ConnectionHandler {
 			protected Integer doInBackground() throws Exception {
 				Thread t = new Thread(new Runnable() {
 					
-					private ObjectOutputStream out;
 					private ObjectInputStream in;
 
 					@Override
@@ -74,7 +74,13 @@ public class ConnectionHandler {
 	}
 
 	public void sendImageArray(ImageIcon[] images) {
-		// TODO Auto-generated method stub
-		
+		if (out != null) {
+			try {
+				out.writeObject(images);
+				out.reset();
+			} catch (IOException e) {
+				System.err.println("Client connection failed");
+			}
+		}
 	}
 }
