@@ -327,4 +327,39 @@ class PadDraw extends JComponent{
 	}
 	//green paint
 
+
+}
+
+class previewPanel extends JPanel implements ConnectionClient.iconListener 
+{
+	private ConnectionClient connectionClient;
+
+	public previewPanel() {
+		
+	}
+	
+	public void paintComponent(Graphics g){
+		
+		}
+
+	@Override
+	public void giveImages(ImageIcon[] listImages) {
+		
+	}
+	
+	public void setClient(ConnectionClient connectionClient)
+	{
+		this.setConnectionClient(connectionClient);
+		connectionClient.setListener(this);
+	}
+
+	public ConnectionClient getConnectionClient() {
+		return connectionClient;
+	}
+
+	public void setConnectionClient(ConnectionClient connectionClient) {
+		this.connectionClient = connectionClient;
+	}
+			
+	
 }
