@@ -36,6 +36,7 @@ public class ConnectionClient {
 				            clientSocket = new Socket(hostIP, 3038);
 				            out = new ObjectOutputStream(clientSocket.getOutputStream());
 				            in = new ObjectInputStream(clientSocket.getInputStream());
+				            //TODO maak thread om op icons te wachten en interface om naar te luisteren
 				        } catch (UnknownHostException e) {
 				            System.err.println("Cannot find host, socket init failed");
 				            //System.exit(1);
@@ -54,7 +55,7 @@ public class ConnectionClient {
 	}
 
 	public void sendImage(ImageIcon image) {
-		if (image != null) {
+		if (image != null && out != null) {
 			try {
 				out.writeObject(image);
 				out.reset();
@@ -67,8 +68,7 @@ public class ConnectionClient {
 
 	public ImageIcon[] getImage() {
 		try {
-			if (in.available() > 0)
-				return (ImageIcon[]) in.readObject();
+			return (ImageIcon[]) in.readObject();
 		} catch (ClassNotFoundException e) {
 			System.err.println("No Class Found");
 		} catch (IOException e) {
