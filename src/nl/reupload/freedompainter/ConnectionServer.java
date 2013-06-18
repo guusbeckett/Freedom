@@ -9,6 +9,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 public class ConnectionServer {
+	
+	public static void main(String[] args) {
+		new ConnectionServer();
+	}
 
 	private ServerSocket serverSocket;
 	private ArrayList<ConnectionHandler> handlers;
