@@ -532,6 +532,7 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 	
 	public void handleInput(String input) {
 		if (input.startsWith("/")) {
+			notifyMessage("<"+((connectionClient != null)?connectionClient.getUserName():"anonymous")+"> "+ input);
 			if (input.startsWith("/nickname")) {
 				if (connectionClient != null)
 					connectionClient.sendString("uname " + input.split(" ")[1]);
@@ -565,9 +566,15 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 				String[] items = input.split(" ");
 				paint.connect((items.length>=2)?items[1]:null, (items.length>=3)?items[2]:null);
 				if (items.length>=2)
-					notifyMessage("<system> connecting to " + items[1]);
+					notifyMessage("<system> connecting to " + items[1] + ((items.length>=3)?" with username "+items[2]:""));
 				else
 					notifyMessage("<system> cannot connect to nothing");
+			}
+			else if (input.startsWith("/invite")) {
+				if (input.split(" ").length >=2)
+					connectionClient.sendInvite(input.split(" ")[1]);
+				else
+					notifyMessage("<system> you must specify a username");
 			}
 			else if (input.startsWith("/help")) {
 				notifyMessage(
@@ -580,18 +587,24 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 						"<system> /stophost\tstop hosting a Freedom server on your system" + "\n" +
 						"<system> /disconnect\tdisconnect from currently connected Freedom server" + "\n" +
 						"<system> /nickname [nickname]\tchange nickname to [nickname]" + "\n" +
+						"<system> /invite [username]\tinvite [username] to a joint session" + "\n" +
+						"<system> /clear\tclear chat history" + "\n" +
 						"<system>" + "\n" +
 						"<system> Freedom by Guus Beckett and Jim van Abkoude. 2013"
 						);
 			}
+			else if (input.startsWith("/clear")) {
+				view.setText("");
+			}
 			else
-				notifyMessage("<system> " + (input.replace("/", "")) + " is not a command, try /help");
+				notifyMessage("<system> " + input + " is not a command, try /help");
 		}
 		else
 		{
 			if (connectionClient != null) {
 				connectionClient.sendMessage(input);
 			}
+			else notifyMessage("<system> you are offline");
 		}
 	}
 }

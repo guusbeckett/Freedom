@@ -98,30 +98,32 @@ public class ConnectionClient {
 	}
 	
 	public Object[][] getImage() {
-		Object o;
-		try {
-			o = in.readObject();
-		} catch (IOException e1) {
-			System.err.println("Client: IOException on getImage");
-			return null;
-		} catch (ClassNotFoundException e1) {
-			System.err.println("Client: ClassNotFoundException on getImage");
-			return null;
-		}
-		if (o.getClass() == String.class) {
-			if (((String) o).startsWith("invite")) {
-				System.out.println("getImage got a string");
-				if (inviteListener != null)
-					inviteListener.notifyInvite(((String) o).split("invite ")[1]);
+		if (in != null) {
+			Object o;
+			try {
+				o = in.readObject();
+			} catch (IOException e1) {
+				System.err.println("Client: IOException on getImage");
+				return null;
+			} catch (ClassNotFoundException e1) {
+				System.err.println("Client: ClassNotFoundException on getImage");
+				return null;
 			}
-			else if (((String) o).startsWith("msg")) {
-				if (messageListener != null)
-					messageListener.notifyMessage(((String) o).split("msg ")[1]);
+			if (o.getClass() == String.class) {
+				if (((String) o).startsWith("invite")) {
+					System.out.println("getImage got a string");
+					if (inviteListener != null)
+						inviteListener.notifyInvite(((String) o).split("invite ")[1]);
+				}
+				else if (((String) o).startsWith("msg")) {
+					if (messageListener != null)
+						messageListener.notifyMessage(((String) o).split("msg ")[1]);
+				}
+				return null;
 			}
-			return null;
-		}
-		else
-			return (Object[][]) o;
+			else
+				return (Object[][]) o;
+		} else return null;
 	}
 	
 	public interface iconListener
@@ -153,6 +155,9 @@ public class ConnectionClient {
 
 	public void disconnect() throws IOException {
 			clientSocket.close();
+			clientSocket = null;
+			out = null;
+			in = null;
 	}
 	
 	public void sendInvite(String reciever) {

@@ -90,10 +90,16 @@ public class ConnectionServer {
 
 							private void handleInvite(String invitation,
 									String userName) {
-								for (ConnectionHandler handle : handlers) {
-									if (handle.getUserName().equals(invitation)) {
-										handle.recieveInvite("invite " + userName);
+								if (invitation.equals(userName))
+									broadCastMessage(userName + " tried to invite himself to a joint session", "server");
+								else {
+									for (ConnectionHandler handle : handlers) {
+										if (handle.getUserName().equals(invitation)) {
+											handle.recieveInvite("invite " + userName);
+											return;
+										}
 									}
+									broadCastMessage(invitation + " is not a user", "server");
 								}
 							}
 						});

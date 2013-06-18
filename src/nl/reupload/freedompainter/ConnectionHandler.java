@@ -155,6 +155,7 @@ public class ConnectionHandler {
 	}
 
 	public void sendMessage(String msg) {
+		if (msg != null)
 		try {
 			out.writeObject("msg "+msg);
 		} catch (IOException e) {
