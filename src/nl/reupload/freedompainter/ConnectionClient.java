@@ -26,52 +26,58 @@ public class ConnectionClient {
 	private iconListener listener;
 
 	public ConnectionClient(Paint paint, final String hostIP) {
-		this.paint = paint;
-		
-        SwingWorker<Integer, Boolean> worker = new SwingWorker<Integer, Boolean>() {
+		if (hostIP != null) {
+			if (!hostIP.equals("")) {
+				this.paint = paint;
+				
+		        SwingWorker<Integer, Boolean> worker = new SwingWorker<Integer, Boolean>() {
 
-			@Override
-			protected Integer doInBackground() throws Exception {
-				Thread t = new Thread(new Runnable() {
-					
 					@Override
-					public void run() {
-						try {
-				            clientSocket = new Socket(hostIP, 3038);
-				            out = new ObjectOutputStream(clientSocket.getOutputStream());
-				            in = new ObjectInputStream(clientSocket.getInputStream());
-				            //TODO maak thread om op icons te wachten en interface om naar te luisteren
-				            Thread iconWaiter = new Thread(new Runnable() {
-								
-								@Override
-								public void run() {
-									while (true) {
-										if (listener != null) {
-											System.out.println("Client: Waiting for images");
-											listener.giveImages(getImage());
-											System.out.println("Client: images recieved");
+					protected Integer doInBackground() throws Exception {
+						Thread t = new Thread(new Runnable() {
+							
+							@Override
+							public void run() {
+								try {
+						            clientSocket = new Socket(hostIP, 3038);
+						            out = new ObjectOutputStream(clientSocket.getOutputStream());
+						            in = new ObjectInputStream(clientSocket.getInputStream());
+						            //TODO maak thread om op icons te wachten en interface om naar te luisteren
+						            Thread iconWaiter = new Thread(new Runnable() {
+										
+										@Override
+										public void run() {
+											while (true) {
+												if (listener != null) {
+													System.out.println("Client: Waiting for images");
+													listener.giveImages(getImage());
+													System.out.println("Client: images recieved");
+												}
+											}
+											
+											
 										}
-									}
-									
-									
-								}
-							});
-				            iconWaiter.start();
-						} catch (UnknownHostException e) {
-				            System.err.println("Cannot find host, socket init failed");
-				            //System.exit(1);
-				        } catch (IOException e) {
-				            System.err.println("Couldn't get I/O for socket");
-				            e.printStackTrace();
-//				            System.exit(1);
-				        }
+									});
+						            iconWaiter.start();
+								} catch (UnknownHostException e) {
+						            System.err.println("Cannot find host, socket init failed");
+						            //System.exit(1);
+						        } catch (IOException e) {
+						            System.err.println("Couldn't get I/O for socket");
+						            e.printStackTrace();
+//						            System.exit(1);
+						        }
+							}
+						});
+						t.run();
+						return 0;
 					}
-				});
-				t.run();
-				return 0;
+				};
+				worker.execute();
 			}
-		};
-		worker.execute();
+			else throw new IllegalArgumentException("hostIP is empty!!");
+		}
+		else throw new IllegalArgumentException("hostIP is null!!");
 	}
 
 	public void sendImage(ImageIcon image) {

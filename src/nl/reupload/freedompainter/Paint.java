@@ -181,7 +181,7 @@ public class Paint{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				client = new ConnectionClient(paint, JOptionPane.showInputDialog(
-					      "Vul het IP adres van de server in: ", "http://"));
+					      "Vul het IP adres van de server in: "));
 				drawPad.setClient(client);
 				previewPanel.setClient(client);
 			}
