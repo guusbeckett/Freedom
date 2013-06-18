@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
@@ -15,6 +16,7 @@ public class ConnectionHandler {
 	private boolean connect;
 	private String userName;
 	private String invited;
+	private ArrayList<String> messageListIn;
 
 	public ConnectionHandler(final Socket socket) {
 		
@@ -28,6 +30,7 @@ public class ConnectionHandler {
 
 					@Override
 					public void run() {
+						messageListIn = new ArrayList<String>();
 						clientSocket = socket;
 						System.out.println("Server: Accepted "+ socket.getInetAddress());
 						try {
@@ -50,6 +53,8 @@ public class ConnectionHandler {
 						                    		setInvite(((String) o).split("invite ")[1]);
 						                    	else if (((String) o).startsWith("uname "))
 						                    		setUserName(((String) o).split("uname ")[1]);
+						                    	else if (((String) o).startsWith("msg "))
+						                    		addMessageCueIn(((String) o).split("msg ")[1]);
 						                    }
 						                } catch (IOException e) {
 						                	System.out.println("Server: Client disconnect!");
@@ -60,8 +65,6 @@ public class ConnectionHandler {
 						                }
 						            }
 						        }
-
-								
 							});
 							inputListener.start();
 						} catch (IOException e) {
@@ -122,6 +125,33 @@ public class ConnectionHandler {
 	public void recieveInvite(String string) {
 		try {
 			out.writeObject(string);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void addMessageCueIn(String string) {
+		messageListIn.add(string);
+		
+	}
+	
+	public String[] getMessageCueIn() {
+		return messageListIn.toArray(new String[0]);
+	}
+	
+	public void emptyMessageCueIn() {
+		messageListIn.clear();
+	}
+	
+	public boolean areMessagesAvailable() {
+		return (!messageListIn.isEmpty());
+	}
+
+	public void sendMessage(String msg) {
+		try {
+			out.writeObject("msg "+msg);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -18,6 +18,7 @@ import java.util.Enumeration;
 import javax.swing.*;
 
 import nl.reupload.freedompainter.ConnectionClient.inviteListener;
+import nl.reupload.freedompainter.ConnectionClient.messageListener;
 
 
 public class Paint implements inviteListener{
@@ -25,6 +26,7 @@ public class Paint implements inviteListener{
 	private ConnectionServer server;
 	protected ConnectionClient client;
 	private previewPanel previewPanel;
+	private ChatPanel chatPanel;
 
 	public Paint() {
 		Icon iconB = new ImageIcon("./img/blue.png");
@@ -47,12 +49,14 @@ public class Paint implements inviteListener{
 		content.setLayout(new BorderLayout());
 		//sets the layout
 		
+		chatPanel = new ChatPanel();
 		drawPad = new PadDraw();
 		previewPanel = new previewPanel();
 		//creates a new padDraw, which is pretty much the paint program
 		previewPanel.setPreferredSize(new Dimension(100, 300));
 		content.add(previewPanel, BorderLayout.EAST);
 		content.add(drawPad, BorderLayout.CENTER);
+		content.add(chatPanel, BorderLayout.SOUTH);
 		//sets the padDraw in the center
 		
 		JPanel panel = new JPanel();
@@ -188,6 +192,7 @@ public class Paint implements inviteListener{
 						      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
 								      "Vul een username in: "));
 					client.setInviteListener(paint);
+					chatPanel.setClient(client);
 					drawPad.setClient(client);
 					previewPanel.setClient(client);
 				}
@@ -199,6 +204,7 @@ public class Paint implements inviteListener{
 							      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
 									      "Vul een username in: "));
 						client.setInviteListener(paint);
+						chatPanel.setClient(client);
 						drawPad.setClient(client);
 						previewPanel.setClient(client);
 					} catch (IOException e) {
@@ -469,4 +475,45 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener , Mou
 	}
 			
 	
+	
+}
+
+class ChatPanel extends JPanel implements ActionListener, messageListener {
+	
+	private JTextArea view;
+	private JTextField input;
+	private ConnectionClient connectionClient;
+
+	public ChatPanel () {
+//		this.setPreferredSize(new Dimension(200, 500));
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		add(Box.createRigidArea(new Dimension(0,10)));
+		setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		view = new JTextArea();
+		view.setEditable(false);
+		input = new JTextField();
+		input.addActionListener(this);
+//		add(view, BorderLayout.CENTER);
+		add(view);
+		add(input);
+	}
+	
+	public void setClient(ConnectionClient client) {
+		this.connectionClient = client;
+		client.setMessageListener(this);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+//		view.setText(view.getText()+"\n"+input.getText());
+		if (connectionClient != null) {
+			connectionClient.sendMessage(input.getText());
+		}
+		input.setText("");
+	}
+
+	@Override
+	public void notifyMessage(String msg) {
+		view.setText(view.getText()+"\n"+msg);
+	}
 }

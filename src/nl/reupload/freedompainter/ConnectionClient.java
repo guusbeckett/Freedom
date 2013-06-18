@@ -28,6 +28,7 @@ public class ConnectionClient {
 	private iconListener iconListener;
 	private String userName;
 	private inviteListener inviteListener;
+	private messageListener messageListener;
 
 	public ConnectionClient(Paint paint, final String hostIP, final String userName) {
 		if (hostIP != null) {
@@ -105,24 +106,20 @@ public class ConnectionClient {
 			return null;
 		}
 		if (o.getClass() == String.class) {
-			System.out.println("getImage got a string");
-			if (inviteListener != null)
-				inviteListener.notifyInvite(((String) o).split("invite ")[1]);
+			if (((String) o).startsWith("invite")) {
+				System.out.println("getImage got a string");
+				if (inviteListener != null)
+					inviteListener.notifyInvite(((String) o).split("invite ")[1]);
+			}
+			else if (((String) o).startsWith("msg")) {
+				if (messageListener != null)
+					messageListener.notifyMessage(((String) o).split("msg ")[1]);
+			}
 			return null;
 		}
 		else
 			return (Object[][]) o;
 	}
-	
-//	public Object[][] getImage() {
-//		try {
-//			return (Object[][]) in.readObject();
-//		} catch (IOException e) {
-//			return null;
-//		} catch (ClassNotFoundException e) {
-//			return null;
-//		}
-//	}
 	
 	public interface iconListener
 	{
@@ -133,6 +130,10 @@ public class ConnectionClient {
 		public abstract void notifyInvite(String invite);
 	}
 	
+	public interface messageListener {
+		public abstract void notifyMessage(String msg);
+	}
+	
 	public void setInviteListener(inviteListener listener) {
 		this.inviteListener = listener;
 	}
@@ -141,6 +142,10 @@ public class ConnectionClient {
 	{
 		this.iconListener = listener;
 		
+	}
+	
+	public void setMessageListener(messageListener listener) {
+		this.messageListener = listener;
 	}
 
 	public void disconnect() throws IOException {
@@ -159,6 +164,16 @@ public class ConnectionClient {
 	public Object getUserName() {
 		// TODO Auto-generated method stub
 		return userName;
+	}
+
+	public void sendMessage(String text) {
+		try {
+			out.writeObject("msg " + text);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	

@@ -51,6 +51,10 @@ public class ConnectionServer {
 												handleInvite(handlers.get(i).getInvitation(), handlers.get(i).getUserName());
 												handlers.get(i).setInvite(null);
 											}
+											if (handlers.get(i).areMessagesAvailable()) {
+												handleIncomingMessage(handlers.get(i).getUserName(), handlers.get(i).getMessageCueIn());
+												handlers.get(i).emptyMessageCueIn();
+											}
 											data[i][0] = handlers.get(i).getImageIcon();
 											data[i][1] = handlers.get(i).getUserName();
 											send = true;
@@ -69,6 +73,22 @@ public class ConnectionServer {
 												handle.sendDataArray(data);
 										}
 									}
+								}
+								
+							}
+
+							private void handleIncomingMessage(String userName,
+									String[] messageCue) {
+								for (String msg : messageCue) {
+									broadCastMessage(msg, userName);
+								}
+								
+							}
+
+							private void broadCastMessage(String msg, String nickName) {
+								msg = "<"+nickName+"> "+msg;
+								for (ConnectionHandler handle : handlers) {
+									handle.sendMessage(msg);
 								}
 								
 							}
