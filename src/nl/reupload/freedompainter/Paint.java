@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -180,10 +181,25 @@ public class Paint{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				client = new ConnectionClient(paint, JOptionPane.showInputDialog(
-					      "Vul het IP adres van de server in: "));
-				drawPad.setClient(client);
-				previewPanel.setClient(client);
+				if (client == null) {
+					client = new ConnectionClient(paint, JOptionPane.showInputDialog(
+						      "Vul het IP adres van de server in: "));
+					drawPad.setClient(client);
+					previewPanel.setClient(client);
+				}
+				else {
+					try {
+						client.disconnect();
+						client = null;
+						client = new ConnectionClient(paint, JOptionPane.showInputDialog(
+							      "Vul het IP adres van de server in: "));
+						drawPad.setClient(client);
+						previewPanel.setClient(client);
+					} catch (IOException e) {
+						System.err.println("Client: Closing client returned IOException");
+					}
+					
+				}
 			}
 		});
 		fileMenu.add(item2);
@@ -247,18 +263,16 @@ class PadDraw extends JComponent{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (recient != null) {
-					recient.sendImage(new ImageIcon(image));
-//					ImageIcon[] list = recient.getImage();
-//					if (list != null) {
-//						for (ImageIcon icon : list)
-//							System.out.println(icon);
-//					}
+					try {
+						recient.sendImage(new ImageIcon(image));
+					} catch (IOException e) {
+						recient = null;
+						System.err.println("Connection to server no longer available, client dropped");
+					}
 				}
 				
 			}
 		}).start();
-		//if the mouse is pressed it sets the oldX & oldY
-		//coordinates as the mouses x & y coordinates
 		addMouseMotionListener(new MouseMotionAdapter(){
 			public void mouseDragged(MouseEvent e){
 				currentX = e.getX();
@@ -272,9 +286,6 @@ class PadDraw extends JComponent{
 			}
 
 		});
-		//while the mouse is dragged it sets currentX & currentY as the mouses x and y
-		//then it draws a line at the coordinates
-		//it repaints it and sets oldX and oldY as currentX and currentY
 	}
 
 	public void paintComponent(Graphics g){
@@ -289,13 +300,6 @@ class PadDraw extends JComponent{
 		g.drawImage(image, 0, 0, null);
 		
 	}
-//	this is the painting bit
-//	if it has nothing on it then
-//	it creates an image the size of the window
-//	sets the value of Graphics as the image
-//	sets the rendering
-//	runs the clear() method
-//	then it draws the image
 
 	public void clear(){
 		graphics2D.setPaint(Color.white);
@@ -303,35 +307,26 @@ class PadDraw extends JComponent{
 		graphics2D.setPaint(Color.black);
 		repaint();
 	}
-	//this is the clear
-	//it sets the colors as white
-	//then it fills the window with white
-	//thin it sets the color back to black
 	public void red(){
 		graphics2D.setPaint(Color.red);
 		repaint();
 	}
-	//this is the red paint
 	public void black(){
 		graphics2D.setPaint(Color.black);
 		repaint();
 	}
-	//black paint
 	public void magenta(){
 		graphics2D.setPaint(Color.magenta);
 		repaint();
 	}
-	//magenta paint
-	public void blue(){
+	public void blue() {
 		graphics2D.setPaint(Color.blue);
 		repaint();
 	}
-	//blue paint
 	public void green(){
 		graphics2D.setPaint(Color.green);
 		repaint();
 	}
-	//green paint
 
 
 }
@@ -346,6 +341,7 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener
 	
 	public void paintComponent(Graphics g){
 			Graphics2D g2 = (Graphics2D)g;
+//			g.clearRect(0, 0, this.getHeight(), this.getWidth());
 			if (icons != null) {
 				int y = 50;
 				for (ImageIcon icon : icons) {
@@ -357,8 +353,6 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener
 
 	@Override
 	public void giveImages(ImageIcon[] listImages) {
-//		for (ImageIcon icon : listImages)
-//			System.out.println(icon);
 		icons = listImages;
 		System.out.println(icons.length);
 		repaint();

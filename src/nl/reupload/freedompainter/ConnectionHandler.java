@@ -12,6 +12,7 @@ public class ConnectionHandler {
 	private Socket clientSocket;
 	private ImageIcon imageIcon;
 	private ObjectOutputStream out;
+	private boolean connect;
 
 	public ConnectionHandler(final Socket socket) {
 		
@@ -30,6 +31,7 @@ public class ConnectionHandler {
 						try {
 							out = new ObjectOutputStream(clientSocket.getOutputStream());
 							in = new ObjectInputStream(clientSocket.getInputStream());
+							connect = true;
 							Thread inputListener = new Thread(new Runnable() {
 								
 								@Override
@@ -41,6 +43,7 @@ public class ConnectionHandler {
 						                    imageIcon = (ImageIcon) o;
 						                } catch (IOException e) {
 						                	System.out.println("Server: Client disconnect!");
+						                	connect = false;
 						                	break;
 
 						                } catch (ClassNotFoundException e) {
@@ -82,6 +85,10 @@ public class ConnectionHandler {
 				System.err.println("Client connection failed");
 			}
 		}
+	}
+	
+	public boolean isConnected() {
+		return connect;
 	}
 
 	public String getIP() {

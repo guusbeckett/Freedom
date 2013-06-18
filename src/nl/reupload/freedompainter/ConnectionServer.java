@@ -35,6 +35,7 @@ public class ConnectionServer {
 							@Override
 							public void run() {
 								System.out.println("Server imageHandler starting");
+								boolean send = false;
 								while (true) {
 									try {
 										Thread.sleep(100);
@@ -44,12 +45,23 @@ public class ConnectionServer {
 									}
 									ImageIcon[] images = new ImageIcon[handlers.size()];
 									for (int i=0; i<handlers.size(); i++) {
-										images[i] = handlers.get(i).getImageIcon();
+										if (handlers.get(i).isConnected()) {
+											images[i] = handlers.get(i).getImageIcon();
+											send = true;
+										}
+										else {
+											handlers.remove(i);
+											System.err.println("Connection to client lost, dropping handler");
+											send = false;
+											break;
+										}
 									}
-									System.out.println("Server: Sent "+images.length+ " images");
-									for (ConnectionHandler handle : handlers) {
-										
-										handle.sendImageArray(images);
+									if (send) {
+										System.out.println("Server: Sent "+images.length+ " images");
+										for (ConnectionHandler handle : handlers) {
+											if (handle.isConnected())
+												handle.sendImageArray(images);
+										}
 									}
 								}
 								

@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.Array;
 
@@ -80,15 +81,10 @@ public class ConnectionClient {
 		else throw new IllegalArgumentException("hostIP is null!!");
 	}
 
-	public void sendImage(ImageIcon image) {
+	public void sendImage(ImageIcon image) throws IOException {
 		if (image != null && out != null) {
-			try {
-				out.writeObject(image);
-				out.reset();
-			} catch (IOException e) {
-				System.out.println("Sending image to server failed");
-				e.printStackTrace();
-			}
+			out.writeObject(image);
+			out.reset();
 		}
 	}
 
@@ -112,5 +108,9 @@ public class ConnectionClient {
 	{
 		this.listener = listener;
 		
+	}
+
+	public void disconnect() throws IOException {
+			clientSocket.close();
 	}
 }
