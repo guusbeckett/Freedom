@@ -60,6 +60,7 @@ public class ConnectionServer {
 											send = true;
 										}
 										else {
+											broadCastMessage(handlers.get(i).getUserName()+" has lost connection", "server");
 											handlers.remove(i);
 											System.err.println("Connection to client lost, dropping handler");
 											send = false;
@@ -85,13 +86,7 @@ public class ConnectionServer {
 								
 							}
 
-							private void broadCastMessage(String msg, String nickName) {
-								msg = "<"+nickName+"> "+msg;
-								for (ConnectionHandler handle : handlers) {
-									handle.sendMessage(msg);
-								}
-								
-							}
+						
 
 							private void handleInvite(String invitation,
 									String userName) {
@@ -106,6 +101,7 @@ public class ConnectionServer {
 						while (true) {
 							System.out.println("Server: Waiting for clients...");
 							try {
+//								broadCastMessage("someone joined the server", "server");
 								handlers.add(new ConnectionHandler(serverSocket.accept()));
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
@@ -122,6 +118,14 @@ public class ConnectionServer {
 			}
 		};
 		worker.execute();
+		
+	}
+	
+	private void broadCastMessage(String msg, String nickName) {
+		msg = "<"+nickName+"> "+msg;
+		for (ConnectionHandler handle : handlers) {
+			handle.sendMessage(msg);
+		}
 		
 	}
 }
