@@ -51,8 +51,13 @@ public class ConnectionHandler {
 						                    else if (o.getClass() == String.class) {
 						                    	if (((String) o).startsWith("invite "))
 						                    		setInvite(((String) o).split("invite ")[1]);
-						                    	else if (((String) o).startsWith("uname "))
+						                    	else if (((String) o).startsWith("uname ")) {
+						                    		if (userName != null)
+						                    			addMessageCueIn(userName +" changed nickname to " + ((String) o).split("uname ")[1]);
+						                    		else
+						                    			addMessageCueIn("logged on");
 						                    		setUserName(((String) o).split("uname ")[1]);
+						                    	}
 						                    	else if (((String) o).startsWith("msg "))
 						                    		addMessageCueIn(((String) o).split("msg ")[1]);
 						                    }

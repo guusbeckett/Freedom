@@ -35,7 +35,10 @@ public class ConnectionClient {
 			if (!hostIP.equals("")) {
 				this.paint = paint;
 				
-				this.userName = userName;
+				if (userName == null)
+					this.userName = "anonymous";
+				else
+					this.userName = userName;
 		        SwingWorker<Integer, Boolean> worker = new SwingWorker<Integer, Boolean>() {
 
 					@Override
@@ -48,7 +51,7 @@ public class ConnectionClient {
 						            clientSocket = new Socket(hostIP, 3038);
 						            out = new ObjectOutputStream(clientSocket.getOutputStream());
 						            in = new ObjectInputStream(clientSocket.getInputStream());
-						            out.writeObject("uname "+userName);
+						            out.writeObject("uname "+ConnectionClient.this.userName);
 						            //TODO maak thread om op icons te wachten en interface om naar te luisteren
 						            Thread iconWaiter = new Thread(new Runnable() {
 										
@@ -174,6 +177,15 @@ public class ConnectionClient {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void sendString(String string) {
+		try {
+			out.writeObject(string);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	

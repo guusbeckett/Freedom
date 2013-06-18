@@ -49,7 +49,7 @@ public class Paint implements inviteListener{
 		content.setLayout(new BorderLayout());
 		//sets the layout
 		
-		chatPanel = new ChatPanel();
+		chatPanel = new ChatPanel(this);
 		drawPad = new PadDraw();
 		previewPanel = new previewPanel();
 		//creates a new padDraw, which is pretty much the paint program
@@ -150,35 +150,7 @@ public class Paint implements inviteListener{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				server = new ConnectionServer();
-				String net = "You are running a Freedom server on:\n";
-				Enumeration<NetworkInterface> interfaces;
-				try {
-					interfaces = NetworkInterface.getNetworkInterfaces();
-					while (interfaces.hasMoreElements()){
-					    NetworkInterface current = interfaces.nextElement();
-					    net+=current+"\n";
-					    try {
-							if (!current.isUp() || current.isLoopback() || current.isVirtual()) continue;
-							Enumeration<InetAddress> addresses = current.getInetAddresses();
-						    while (addresses.hasMoreElements()){
-						        InetAddress current_addr = addresses.nextElement();
-						        if (current_addr.isLoopbackAddress()) continue;
-						        net+=current_addr.getHostAddress()+"\n";
-						    }
-						} catch (SocketException e) {
-							JOptionPane.showMessageDialog(frame, net, "server notify", JOptionPane.ERROR_MESSAGE);
-						}
-						JOptionPane.showMessageDialog(frame, net, "server notify", JOptionPane.INFORMATION_MESSAGE);
-					    
-					}
-				} catch (SocketException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				
-				
+				startServer();
 			}
 		});
 		fileMenu.add(item);
@@ -187,31 +159,12 @@ public class Paint implements inviteListener{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (client == null) {
-					client = new ConnectionClient(paint, JOptionPane.showInputDialog(
-						      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
-								      "Vul een username in: "));
-					client.setInviteListener(paint);
-					chatPanel.setClient(client);
-					drawPad.setClient(client);
-					previewPanel.setClient(client);
+				if (client != null) {
+					disconnect();
 				}
-				else {
-					try {
-						client.disconnect();
-						client = null;
-						client = new ConnectionClient(paint, JOptionPane.showInputDialog(
-							      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
-									      "Vul een username in: "));
-						client.setInviteListener(paint);
-						chatPanel.setClient(client);
-						drawPad.setClient(client);
-						previewPanel.setClient(client);
-					} catch (IOException e) {
-						System.err.println("Client: Closing client returned IOException");
-					}
-					
-				}
+				connect(JOptionPane.showInputDialog(
+					      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
+							      "Vul een username in: "));
 			}
 		});
 		fileMenu.add(item2);
@@ -225,6 +178,67 @@ public class Paint implements inviteListener{
 	}
 	public void mergeImage() {
 		drawPad.mergeImage();
+	}
+	
+	public boolean startServer() {
+		if (server == null) {
+			server = new ConnectionServer();
+			String net = "You are running a Freedom server on:\n";
+			Enumeration<NetworkInterface> interfaces;
+			try {
+				interfaces = NetworkInterface.getNetworkInterfaces();
+				while (interfaces.hasMoreElements()){
+				    NetworkInterface current = interfaces.nextElement();
+				    net+=current+"\n";
+				    try {
+						if (!current.isUp() || current.isLoopback() || current.isVirtual()) continue;
+						Enumeration<InetAddress> addresses = current.getInetAddresses();
+					    while (addresses.hasMoreElements()){
+					        InetAddress current_addr = addresses.nextElement();
+					        if (current_addr.isLoopbackAddress()) continue;
+					        net+=current_addr.getHostAddress()+"\n";
+					    }
+					} catch (SocketException e) {
+						JOptionPane.showMessageDialog(drawPad, net, "server notify", JOptionPane.ERROR_MESSAGE);
+					}
+					JOptionPane.showMessageDialog(drawPad, net, "server notify", JOptionPane.INFORMATION_MESSAGE);
+				    
+				}
+			} catch (SocketException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			return true;
+		}
+		else return false;
+	}
+	public boolean stopServer() {
+		if (server != null) {
+			server.stop();
+			server = null;
+			return true;
+		} else return false;
+	}
+	
+	public void connect(String ip, String userName) {
+		client = new ConnectionClient(this, ip, userName);
+		client.setInviteListener(this);
+		setClient(client);
+	}
+	
+	public void disconnect() {
+		try {
+			client.disconnect();
+			setClient(null);
+		} catch (IOException e) {
+			System.err.println("Client: Closing client returned IOException");
+		}
+	}
+	
+	public void setClient(ConnectionClient client) {
+		chatPanel.setClient(client);
+		drawPad.setClient(client);
+		previewPanel.setClient(client);
 	}
 
 	@Override
@@ -483,8 +497,10 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 	private JTextArea view;
 	private JTextField input;
 	private ConnectionClient connectionClient;
+	private Paint paint;
 
-	public ChatPanel () {
+	public ChatPanel (Paint paint) {
+		this.paint = paint;
 //		this.setPreferredSize(new Dimension(200, 500));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(Box.createRigidArea(new Dimension(0,10)));
@@ -505,15 +521,77 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-//		view.setText(view.getText()+"\n"+input.getText());
-		if (connectionClient != null) {
-			connectionClient.sendMessage(input.getText());
-		}
+		handleInput(input.getText());
 		input.setText("");
 	}
 
 	@Override
 	public void notifyMessage(String msg) {
 		view.setText(view.getText()+"\n"+msg);
+	}
+	
+	public void handleInput(String input) {
+		if (input.startsWith("/")) {
+			if (input.startsWith("/nickname")) {
+				if (connectionClient != null)
+					connectionClient.sendString("uname " + input.split(" ")[1]);
+				else
+					notifyMessage("<system> cannot change nickname in offline mode");
+			}
+			else if (input.startsWith("/disconnect")) {
+				if (connectionClient != null)
+					try {
+						connectionClient.disconnect();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				else
+					notifyMessage("<system> cannot disconnect in offline mode");
+			}
+			else if (input.startsWith("/host")) {
+				if (paint.startServer())
+					notifyMessage("<system> starting server");
+				else
+					notifyMessage("<system> server could not start, maybe it is already running");
+			}
+			else if (input.startsWith("/stophost")) {
+				if (paint.stopServer())
+					notifyMessage("<system> stopping server");
+				else
+					notifyMessage("<system> server isn't running");
+			}
+			else if (input.startsWith("/connect")) {
+				String[] items = input.split(" ");
+				paint.connect((items.length>=2)?items[1]:null, (items.length>=3)?items[2]:null);
+				if (items.length>=2)
+					notifyMessage("<system> connecting to " + items[1]);
+				else
+					notifyMessage("<system> cannot connect to nothing");
+			}
+			else if (input.startsWith("/help")) {
+				notifyMessage(
+						"<system> Welcome to Freedom help" + "\n" +
+						"<system> " + "\n" +
+						"<system> possible commands:" + "\n" +
+						"<system> " + "\n" +
+						"<system> /connect [ip] (username)\tconnect to a Freedom server at [ip] (with username as nickname)" + "\n" +
+						"<system> /host\tstart hosting a Freedom server on your system" + "\n" +
+						"<system> /stophost\tstop hosting a Freedom server on your system" + "\n" +
+						"<system> /disconnect\tdisconnect from currently connected Freedom server" + "\n" +
+						"<system> /nickname [nickname]\tchange nickname to [nickname]" + "\n" +
+						"<system>" + "\n" +
+						"<system> Freedom by Guus Beckett and Jim van Abkoude. 2013"
+						);
+			}
+			else
+				notifyMessage("<system> " + (input.replace("/", "")) + " is not a command, try /help");
+		}
+		else
+		{
+			if (connectionClient != null) {
+				connectionClient.sendMessage(input);
+			}
+		}
 	}
 }
