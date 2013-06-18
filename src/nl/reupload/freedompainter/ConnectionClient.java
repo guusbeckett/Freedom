@@ -26,7 +26,7 @@ public class ConnectionClient {
 	private ObjectInputStream in;
 	private iconListener listener;
 
-	public ConnectionClient(Paint paint, final String hostIP) {
+	public ConnectionClient(Paint paint, final String hostIP, final String userName) {
 		if (hostIP != null) {
 			if (!hostIP.equals("")) {
 				this.paint = paint;
@@ -43,6 +43,7 @@ public class ConnectionClient {
 						            clientSocket = new Socket(hostIP, 3038);
 						            out = new ObjectOutputStream(clientSocket.getOutputStream());
 						            in = new ObjectInputStream(clientSocket.getInputStream());
+						            out.writeObject(userName);
 						            //TODO maak thread om op icons te wachten en interface om naar te luisteren
 						            Thread iconWaiter = new Thread(new Runnable() {
 										
@@ -51,7 +52,7 @@ public class ConnectionClient {
 											while (true) {
 												if (listener != null) {
 													System.out.println("Client: Waiting for images");
-													listener.giveImages(getImage());
+													listener.giveObjects(getImage());
 													System.out.println("Client: images recieved");
 												}
 											}
@@ -88,20 +89,20 @@ public class ConnectionClient {
 		}
 	}
 
-	public ImageIcon[] getImage() {
+	public Object[][] getImage() {
 		try {
-			return (ImageIcon[]) in.readObject();
+			return (Object[][]) in.readObject();
 		} catch (ClassNotFoundException e) {
 			System.err.println("No Class Found");
 		} catch (IOException e) {
 			System.err.println("IOException occured");
 		}
 		return null;
-	} //Listener
+	}
 	
 	public interface iconListener
 	{
-		public abstract void giveImages(ImageIcon[] listImages);
+		public abstract void giveObjects(Object[][] objects);
 	}
 	
 	public void setListener(iconListener listener)

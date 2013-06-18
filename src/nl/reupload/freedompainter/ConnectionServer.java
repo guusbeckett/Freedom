@@ -43,10 +43,12 @@ public class ConnectionServer {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
-									ImageIcon[] images = new ImageIcon[handlers.size()];
+									Object[][] data = new Object[handlers.size()][2];
+//									ImageIcon[] images = new ImageIcon[handlers.size()];
 									for (int i=0; i<handlers.size(); i++) {
 										if (handlers.get(i).isConnected()) {
-											images[i] = handlers.get(i).getImageIcon();
+											data[i][0] = handlers.get(i).getImageIcon();
+											data[i][1] = handlers.get(i).getUserName();
 											send = true;
 										}
 										else {
@@ -57,10 +59,10 @@ public class ConnectionServer {
 										}
 									}
 									if (send) {
-										System.out.println("Server: Sent "+images.length+ " images");
+										System.out.println("Server: Sent "+ data.length+ " images");
 										for (ConnectionHandler handle : handlers) {
 											if (handle.isConnected())
-												handle.sendImageArray(images);
+												handle.sendDataArray(data);
 										}
 									}
 								}

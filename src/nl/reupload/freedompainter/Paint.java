@@ -183,7 +183,8 @@ public class Paint{
 			public void actionPerformed(ActionEvent arg0) {
 				if (client == null) {
 					client = new ConnectionClient(paint, JOptionPane.showInputDialog(
-						      "Vul het IP adres van de server in: "));
+						      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
+								      "Vul een username in: "));
 					drawPad.setClient(client);
 					previewPanel.setClient(client);
 				}
@@ -192,7 +193,8 @@ public class Paint{
 						client.disconnect();
 						client = null;
 						client = new ConnectionClient(paint, JOptionPane.showInputDialog(
-							      "Vul het IP adres van de server in: "));
+							      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
+									      "Vul een username in: "));
 						drawPad.setClient(client);
 						previewPanel.setClient(client);
 					} catch (IOException e) {
@@ -334,27 +336,28 @@ class PadDraw extends JComponent{
 class previewPanel extends JPanel implements ConnectionClient.iconListener 
 {
 	private ConnectionClient connectionClient;
-	private ImageIcon[] icons;
+	private Object[][] servedObjects;
 
 	public previewPanel() {
 	}
 	
 	public void paintComponent(Graphics g){
 			Graphics2D g2 = (Graphics2D)g;
-//			g.clearRect(0, 0, this.getHeight(), this.getWidth());
-			if (icons != null) {
+			g.clearRect(0, 0, this.getHeight(), this.getWidth());
+			if (servedObjects != null) {
 				int y = 50;
-				for (ImageIcon icon : icons) {
-					g2.drawImage(icon.getImage(), 0, y, 100, 100, null);
+				for (Object[] objs : servedObjects) {
+					g2.drawString((String)objs[1], 0, y-10);
+					g2.drawImage(((ImageIcon)objs[0]).getImage(), 0, y, 100, 100, null);
 					y+=150;
 				}
 			}
 		}
 
 	@Override
-	public void giveImages(ImageIcon[] listImages) {
-		icons = listImages;
-		System.out.println(icons.length);
+	public void giveObjects(Object[][] objects) {
+		servedObjects = objects;
+		System.out.println(servedObjects.length);
 		repaint();
 	}
 	

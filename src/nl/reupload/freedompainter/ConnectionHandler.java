@@ -13,6 +13,7 @@ public class ConnectionHandler {
 	private ImageIcon imageIcon;
 	private ObjectOutputStream out;
 	private boolean connect;
+	private String userName;
 
 	public ConnectionHandler(final Socket socket) {
 		
@@ -34,32 +35,29 @@ public class ConnectionHandler {
 							connect = true;
 							Thread inputListener = new Thread(new Runnable() {
 								
+
 								@Override
 								 public void run() {
 									Object o;
 						            while (true) {
 						                try {
 						                    o = in.readObject();
-						                    imageIcon = (ImageIcon) o;
+											if (o.getClass() == ImageIcon.class)
+						                    	imageIcon = (ImageIcon) o;
+						                    else if (o.getClass() == String.class)
+						                    	setUserName((String) o);
 						                } catch (IOException e) {
 						                	System.out.println("Server: Client disconnect!");
 						                	connect = false;
 						                	break;
-
 						                } catch (ClassNotFoundException e) {
 						                    e.printStackTrace();
 						                }
-//						                try {
-//											in.reset();
-//										} catch (IOException e) {
-//											e.printStackTrace();
-//										}
 						            }
 						        }
 							});
 							inputListener.start();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -72,14 +70,13 @@ public class ConnectionHandler {
 	}
 
 	public ImageIcon getImageIcon() {
-		// TODO Auto-generated method stub
 		return imageIcon;
 	}
 
-	public void sendImageArray(ImageIcon[] images) {
+	public void sendDataArray(Object[][] data) {
 		if (out != null) {
 			try {
-				out.writeObject(images);
+				out.writeObject(data);
 				out.reset();
 			} catch (IOException e) {
 				System.err.println("Client connection failed");
@@ -92,7 +89,14 @@ public class ConnectionHandler {
 	}
 
 	public String getIP() {
-		// TODO Auto-generated method stub
 		return clientSocket.getInetAddress().toString();
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }
