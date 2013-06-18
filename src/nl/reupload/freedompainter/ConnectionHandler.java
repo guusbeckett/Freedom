@@ -14,6 +14,7 @@ public class ConnectionHandler {
 	private ObjectOutputStream out;
 	private boolean connect;
 	private String userName;
+	private String invited;
 
 	public ConnectionHandler(final Socket socket) {
 		
@@ -44,8 +45,12 @@ public class ConnectionHandler {
 						                    o = in.readObject();
 											if (o.getClass() == ImageIcon.class)
 						                    	imageIcon = (ImageIcon) o;
-						                    else if (o.getClass() == String.class)
-						                    	setUserName((String) o);
+						                    else if (o.getClass() == String.class) {
+						                    	if (((String) o).startsWith("invite "))
+						                    		setInvite(((String) o).split("invite ")[1]);
+						                    	else if (((String) o).startsWith("uname "))
+						                    		setUserName(((String) o).split("uname ")[1]);
+						                    }
 						                } catch (IOException e) {
 						                	System.out.println("Server: Client disconnect!");
 						                	connect = false;
@@ -55,6 +60,8 @@ public class ConnectionHandler {
 						                }
 						            }
 						        }
+
+								
 							});
 							inputListener.start();
 						} catch (IOException e) {
@@ -98,5 +105,27 @@ public class ConnectionHandler {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+	
+	public void setInvite(String targetUserName) {
+		invited = targetUserName;
+	}
+	
+	public boolean hasInvitation() {
+		return (invited != null);
+	}
+	
+	public String getInvitation() {
+		return invited;
+	}
+
+	public void recieveInvite(String string) {
+		try {
+			out.writeObject(string);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }

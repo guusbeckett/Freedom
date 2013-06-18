@@ -47,6 +47,10 @@ public class ConnectionServer {
 //									ImageIcon[] images = new ImageIcon[handlers.size()];
 									for (int i=0; i<handlers.size(); i++) {
 										if (handlers.get(i).isConnected()) {
+											if (handlers.get(i).hasInvitation()) {
+												handleInvite(handlers.get(i).getInvitation(), handlers.get(i).getUserName());
+												handlers.get(i).setInvite(null);
+											}
 											data[i][0] = handlers.get(i).getImageIcon();
 											data[i][1] = handlers.get(i).getUserName();
 											send = true;
@@ -67,6 +71,15 @@ public class ConnectionServer {
 									}
 								}
 								
+							}
+
+							private void handleInvite(String invitation,
+									String userName) {
+								for (ConnectionHandler handle : handlers) {
+									if (handle.getUserName().equals(invitation)) {
+										handle.recieveInvite("invite " + userName);
+									}
+								}
 							}
 						});
 						handleImages.start();

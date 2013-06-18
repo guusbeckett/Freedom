@@ -17,8 +17,10 @@ import java.util.Enumeration;
 
 import javax.swing.*;
 
+import nl.reupload.freedompainter.ConnectionClient.inviteListener;
 
-public class Paint{
+
+public class Paint implements inviteListener{
 	private PadDraw drawPad;
 	private ConnectionServer server;
 	protected ConnectionClient client;
@@ -185,6 +187,7 @@ public class Paint{
 					client = new ConnectionClient(paint, JOptionPane.showInputDialog(
 						      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
 								      "Vul een username in: "));
+					client.setInviteListener(paint);
 					drawPad.setClient(client);
 					previewPanel.setClient(client);
 				}
@@ -195,6 +198,7 @@ public class Paint{
 						client = new ConnectionClient(paint, JOptionPane.showInputDialog(
 							      "Vul het IP adres van de server in: "), JOptionPane.showInputDialog(
 									      "Vul een username in: "));
+						client.setInviteListener(paint);
 						drawPad.setClient(client);
 						previewPanel.setClient(client);
 					} catch (IOException e) {
@@ -215,6 +219,19 @@ public class Paint{
 	}
 	public void mergeImage() {
 		drawPad.mergeImage();
+	}
+
+	@Override
+	public void notifyInvite(String invite) {
+		int option = JOptionPane.showConfirmDialog(drawPad, "you have an invite from " + invite + ", accept?");
+		switch (option) {
+			case (0):
+				break;
+			case (1):
+				break;
+			case (2):
+				break;
+		}
 	}
 }
 
@@ -333,12 +350,19 @@ class PadDraw extends JComponent{
 
 }
 
-class previewPanel extends JPanel implements ConnectionClient.iconListener 
+class previewPanel extends JPanel implements ConnectionClient.iconListener , MouseListener, MouseMotionListener
 {
 	private ConnectionClient connectionClient;
 	private Object[][] servedObjects;
+	private int x,y;
+	private JPopupMenu contextMenu;
 
 	public previewPanel() {
+		x=0;
+		y=0;
+		contextMenu = new JPopupMenu();
+		addMouseListener(this);
+		addMouseMotionListener(this);
 	}
 	
 	public void paintComponent(Graphics g){
@@ -347,7 +371,8 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener
 			if (servedObjects != null) {
 				int y = 50;
 				for (Object[] objs : servedObjects) {
-					g2.drawString((String)objs[1], 0, y-10);
+					if (objs[1] != null)
+						g2.drawString((String)objs[1], 0, y-10);
 					g2.drawImage(((ImageIcon)objs[0]).getImage(), 0, y, 100, 100, null);
 					y+=150;
 				}
@@ -356,15 +381,17 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener
 
 	@Override
 	public void giveObjects(Object[][] objects) {
-		servedObjects = objects;
-		System.out.println(servedObjects.length);
-		repaint();
+		if (objects != null) {
+			servedObjects = objects;
+			System.out.println(servedObjects.length);
+			repaint();
+		}
 	}
 	
 	public void setClient(ConnectionClient connectionClient)
 	{
 		this.setConnectionClient(connectionClient);
-		connectionClient.setListener(this);
+		connectionClient.setIconListener(this);
 	}
 
 	public ConnectionClient getConnectionClient() {
@@ -373,6 +400,72 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener
 
 	public void setConnectionClient(ConnectionClient connectionClient) {
 		this.connectionClient = connectionClient;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		int localy = 50;
+		if (arg0.getButton() == MouseEvent.BUTTON3)
+			if (servedObjects != null) {
+				for (final Object[] objs : servedObjects) {
+					if (y >= localy-10 && y <= localy+100) {
+						contextMenu.removeAll();
+						if (!objs[1].equals(connectionClient.getUserName())) {
+							JMenuItem item = new JMenuItem("Invite " + objs[1]);
+							item.addActionListener(new ActionListener() {
+								
+								@Override
+								public void actionPerformed(ActionEvent arg0) {
+									connectionClient.sendInvite((String) objs[1]);
+									
+								}
+							});
+							contextMenu.add(item);
+						}
+						
+						else
+							contextMenu.add(new JMenuItem("You cannot invite yourself!"));
+						contextMenu.show(this, x, y);
+					}
+					localy+=150;
+				}
+			}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		x = e.getX();
+		y = e.getY();
 	}
 			
 	

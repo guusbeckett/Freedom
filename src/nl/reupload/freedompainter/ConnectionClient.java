@@ -17,6 +17,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
 import nl.reupload.freedompainter.ConnectionClient.iconListener;
+import nl.reupload.freedompainter.ConnectionClient.inviteListener;
 
 public class ConnectionClient {
 	
@@ -24,13 +25,16 @@ public class ConnectionClient {
 	private Paint paint;
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
-	private iconListener listener;
+	private iconListener iconListener;
+	private String userName;
+	private inviteListener inviteListener;
 
 	public ConnectionClient(Paint paint, final String hostIP, final String userName) {
 		if (hostIP != null) {
 			if (!hostIP.equals("")) {
 				this.paint = paint;
 				
+				this.userName = userName;
 		        SwingWorker<Integer, Boolean> worker = new SwingWorker<Integer, Boolean>() {
 
 					@Override
@@ -43,16 +47,16 @@ public class ConnectionClient {
 						            clientSocket = new Socket(hostIP, 3038);
 						            out = new ObjectOutputStream(clientSocket.getOutputStream());
 						            in = new ObjectInputStream(clientSocket.getInputStream());
-						            out.writeObject(userName);
+						            out.writeObject("uname "+userName);
 						            //TODO maak thread om op icons te wachten en interface om naar te luisteren
 						            Thread iconWaiter = new Thread(new Runnable() {
 										
 										@Override
 										public void run() {
 											while (true) {
-												if (listener != null) {
+												if (iconListener != null) {
 													System.out.println("Client: Waiting for images");
-													listener.giveObjects(getImage());
+													iconListener.giveObjects(getImage());
 													System.out.println("Client: images recieved");
 												}
 											}
@@ -88,30 +92,74 @@ public class ConnectionClient {
 			out.reset();
 		}
 	}
-
+	
 	public Object[][] getImage() {
+		Object o;
 		try {
-			return (Object[][]) in.readObject();
-		} catch (ClassNotFoundException e) {
-			System.err.println("No Class Found");
-		} catch (IOException e) {
-			System.err.println("IOException occured");
+			o = in.readObject();
+		} catch (IOException e1) {
+			System.err.println("Client: IOException on getImage");
+			return null;
+		} catch (ClassNotFoundException e1) {
+			System.err.println("Client: ClassNotFoundException on getImage");
+			return null;
 		}
-		return null;
+		if (o.getClass() == String.class) {
+			System.out.println("getImage got a string");
+			if (inviteListener != null)
+				inviteListener.notifyInvite(((String) o).split("invite ")[1]);
+			return null;
+		}
+		else
+			return (Object[][]) o;
 	}
+	
+//	public Object[][] getImage() {
+//		try {
+//			return (Object[][]) in.readObject();
+//		} catch (IOException e) {
+//			return null;
+//		} catch (ClassNotFoundException e) {
+//			return null;
+//		}
+//	}
 	
 	public interface iconListener
 	{
 		public abstract void giveObjects(Object[][] objects);
 	}
 	
-	public void setListener(iconListener listener)
+	public interface inviteListener {
+		public abstract void notifyInvite(String invite);
+	}
+	
+	public void setInviteListener(inviteListener listener) {
+		this.inviteListener = listener;
+	}
+	
+	public void setIconListener(iconListener listener)
 	{
-		this.listener = listener;
+		this.iconListener = listener;
 		
 	}
 
 	public void disconnect() throws IOException {
 			clientSocket.close();
 	}
+	
+	public void sendInvite(String reciever) {
+		try {
+			out.writeObject("invite "+ reciever);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public Object getUserName() {
+		// TODO Auto-generated method stub
+		return userName;
+	}
+	
+	
 }
