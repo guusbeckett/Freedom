@@ -78,6 +78,8 @@ public class ConnectionServer {
 												handle.sendDataArray(data);
 										}
 									}
+									if (serverSocket == null)
+										break;
 								}
 								
 							}
@@ -127,6 +129,8 @@ public class ConnectionServer {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
+							if (serverSocket == null)
+								break;
 							
 							
 						}
@@ -163,6 +167,7 @@ public class ConnectionServer {
 	public void stop()  {
 		try {
 			serverSocket.close();
+			serverSocket = null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
