@@ -270,6 +270,7 @@ public class Paint implements inviteListener{
 	public void disconnect() {
 		try {
 			client.disconnect();
+			client = null;
 			setClient(null);
 		} catch (IOException e) {
 			System.err.println("Client: Closing client returned IOException");

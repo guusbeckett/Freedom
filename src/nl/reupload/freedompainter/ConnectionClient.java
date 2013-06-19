@@ -29,6 +29,7 @@ public class ConnectionClient {
 	private String userName;
 	private inviteListener inviteListener;
 	private messageListener messageListener;
+	private Thread iconWaiter;
 
 	public ConnectionClient(Paint paint, final String hostIP, final String userName) {
 		if (hostIP != null) {
@@ -53,7 +54,7 @@ public class ConnectionClient {
 						            in = new ObjectInputStream(clientSocket.getInputStream());
 						            out.writeObject("uname "+ConnectionClient.this.userName);
 						            //TODO maak thread om op icons te wachten en interface om naar te luisteren
-						            Thread iconWaiter = new Thread(new Runnable() {
+						             iconWaiter = new Thread(new Runnable() {
 										
 										@Override
 										public void run() {
@@ -63,6 +64,8 @@ public class ConnectionClient {
 													iconListener.giveObjects(getImage());
 													System.out.println("Client: images recieved");
 												}
+												if (clientSocket == null)
+													break;
 											}
 											
 											
