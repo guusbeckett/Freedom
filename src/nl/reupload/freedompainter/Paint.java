@@ -13,13 +13,17 @@ import java.awt.image.ImageFilter;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.sql.Savepoint;
 import java.util.Enumeration;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 
 import nl.reupload.freedompainter.ConnectionClient.inviteListener;
 import nl.reupload.freedompainter.ConnectionClient.messageListener;
@@ -172,7 +176,29 @@ public class Paint implements inviteListener{
 							      "Vul een username in: "));
 			}
 		});
+		JMenuItem item3 = new JMenuItem("Save Image");
+		item3.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser = new JFileChooser();
+				chooser.setFileFilter(new PNGFilter());
+				String fileName = null;
+				int returnVal = chooser.showSaveDialog(drawPad);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					fileName = chooser.getSelectedFile().getAbsolutePath();
+				}
+				try {
+					writeImage(getImage(), new File(fileName));
+					chatPanel.notifyMessage("<system> image written to " + fileName);
+				} catch (IOException e) {
+					chatPanel.notifyMessage("<system> writing image failed, IOException occured");
+				}
+				
+			}
+		});
 		fileMenu.add(item2);
+		fileMenu.add(item3);
 		//makes it so you can close
 		frame.setVisible(true);
 		//makes it so you can see it
@@ -183,6 +209,16 @@ public class Paint implements inviteListener{
 	}
 	public void mergeImage(Image image) {
 		drawPad.mergeImage(image, true);
+	}
+	
+	public void writeImage(Image image, File file) throws IOException {
+		BufferedImage dest = new BufferedImage(
+			    image.getWidth(null), image.getHeight(null),
+			    BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = dest.createGraphics();
+		g2.drawImage(image, 0, 0, null);
+		g2.dispose();
+		ImageIO.write(dest, "png", file);
 	}
 	
 	public boolean startServer() {
@@ -652,12 +688,26 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 						"<system> /nickname [nickname]\tchange nickname to [nickname]" + "\n" +
 						"<system> /invite [username]\tinvite [username] to a joint session" + "\n" +
 						"<system> /clear\tclear chat history" + "\n" +
+						"<system> /pm [nickName] [msg]\tsend a private message containing [msg] to [nickName]" + "\n" +
+						"<system> /saveimg [filename]\tsave current image to [filename]" + "\n" +
 						"<system>" + "\n" +
 						"<system> Freedom by Guus Beckett and Jim van Abkoude. 2013"
 						);
 			}
 			else if (input.startsWith("/clear")) {
 				view.setText("");
+			}
+			else if (input.startsWith("/saveimg")) {
+				String[] data = input.split(" ");
+				if (data.length >= 2)
+					try {
+						paint.writeImage(paint.getImage(), new File(data[1]));
+						notifyMessage("<system> image written to " + data[1]);
+					} catch (IOException e) {
+						notifyMessage("<system> writing image failed, IOException occured");
+					}
+				else
+					notifyMessage("<system> writing image failed, command syntax incorrect. see /help");
 			}
 			else if (input.startsWith("/pm")) {
 				if (connectionClient != null) {
@@ -675,4 +725,15 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 			else notifyMessage("<system> you are offline");
 		}
 	}
+}
+
+class PNGFilter extends FileFilter {
+	public boolean accept(File f) {
+		return f.isDirectory() || f.getName().toLowerCase().endsWith(".png");
+	}
+
+	public String getDescription() {
+		return ".png files";
+	}
+
 }
