@@ -489,7 +489,8 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener , Mou
 					else
 						g2.drawString((String)objs[1], 0, y-10);
 				}
-				g2.drawImage(((ImageIcon)objs[0]).getImage(), 0, y, 100, 100, null);
+				if (objs[0]!= null)
+					g2.drawImage(((ImageIcon)objs[0]).getImage(), 0, y, 100, 100, null);
 				y+=150;
 			}
 		}

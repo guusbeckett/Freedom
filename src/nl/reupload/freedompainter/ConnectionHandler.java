@@ -17,6 +17,7 @@ public class ConnectionHandler {
 	private String userName;
 	private String invited;
 	private ArrayList<String> messageListIn;
+	private int fails;
 
 	public ConnectionHandler(final Socket socket) {
 		
@@ -30,6 +31,7 @@ public class ConnectionHandler {
 
 					@Override
 					public void run() {
+						fails = 0;
 						messageListIn = new ArrayList<String>();
 						clientSocket = socket;
 						System.out.println("Server: Accepted "+ socket.getInetAddress());
@@ -40,12 +42,14 @@ public class ConnectionHandler {
 							Thread inputListener = new Thread(new Runnable() {
 								
 
+
 								@Override
 								 public void run() {
 									Object o;
 						            while (true) {
 						                try {
 						                    o = in.readObject();
+						                    fails = 0;
 											if (o.getClass() == ImageIcon.class)
 						                    	imageIcon = (ImageIcon) o;
 						                    else if (o.getClass() == String.class) {
@@ -62,8 +66,12 @@ public class ConnectionHandler {
 						                    		addMessageCueIn(((String) o).split("msg ")[1]);
 						                    }
 						                } catch (IOException e) {
-						                	System.out.println("Server: Client disconnect!");
-						                	connect = false;
+						                	fails++;
+						                	System.out.println("Server: Client "+socket.getInetAddress()+" is not available, attempt " + fails);
+						                	if (fails > 3) {
+							                	System.out.println("Server: Client disconnect!");
+							                	connect = false;
+						                	}
 						                	break;
 						                } catch (ClassNotFoundException e) {
 						                    e.printStackTrace();
@@ -93,8 +101,14 @@ public class ConnectionHandler {
 			try {
 				out.writeObject(data);
 				out.reset();
+				fails = 0;
 			} catch (IOException e) {
-				System.err.println("Client connection failed");
+				fails++;
+				System.err.println("Client connection failed, attempt " + fails);
+				if (fails > 3) {
+					System.out.println("Server: Client disconnect!");
+                	connect = false;
+				}
 			}
 		}
 	}
