@@ -85,7 +85,15 @@ public class ConnectionServer {
 							private void handleIncomingMessage(String userName,
 									String[] messageCue) {
 								for (String msg : messageCue) {
-									broadCastMessage(msg, userName);
+									if (msg.startsWith("pm ")) {
+										String[] things = msg.replace("pm ", "").split(" ");
+										if (things.length >= 2)
+											privateMessage(msg.replace("pm " + things[0] + " ", ""), userName, things[0]);
+										else
+											privateMessage("there is no reciever or message in this pm", "server", userName);
+									}
+									else
+										broadCastMessage(msg, userName);
 								}
 								
 							}
@@ -95,7 +103,8 @@ public class ConnectionServer {
 							private void handleInvite(String invitation,
 									String userName) {
 								if (invitation.equals(userName))
-									broadCastMessage(userName + " tried to invite himself to a joint session", "server");
+//									broadCastMessage(userName + " tried to invite himself to a joint session", "server");
+									privateMessage("You cannot invite yourself!", "server", userName);
 								else {
 									for (ConnectionHandler handle : handlers) {
 										if (handle.getUserName().equals(invitation)) {
@@ -103,7 +112,8 @@ public class ConnectionServer {
 											return;
 										}
 									}
-									broadCastMessage(invitation + " is not a user", "server");
+//									broadCastMessage(invitation + " is not a user", "server");
+									privateMessage(invitation + " is not a user", "server", userName);
 								}
 							}
 						});
@@ -137,6 +147,17 @@ public class ConnectionServer {
 			handle.sendMessage(msg);
 		}
 		
+	}
+	
+	private void privateMessage(String msg, String nickNameSend, String nickNameRecieve) {
+		msg = "<"+nickNameSend+"> [private] "+msg;
+		for (ConnectionHandler handle : handlers) {
+			if (handle.getUserName().equals(nickNameRecieve)) {
+				handle.sendMessage(msg);
+				return;
+			}
+		}
+		privateMessage(nickNameRecieve + " could not be reached", "server", nickNameSend);
 	}
 
 	public void stop()  {

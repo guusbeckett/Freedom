@@ -659,6 +659,11 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 			else if (input.startsWith("/clear")) {
 				view.setText("");
 			}
+			else if (input.startsWith("/pm")) {
+				if (connectionClient != null) {
+					connectionClient.sendMessage(input.substring(1));
+				}
+			}
 			else
 				notifyMessage("<system> " + input + " is not a command, try /help");
 		}
