@@ -7,8 +7,12 @@ package nl.reupload.freedompainter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageFilter;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
+import java.awt.image.RGBImageFilter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -27,6 +31,7 @@ public class Paint implements inviteListener{
 	protected ConnectionClient client;
 	private previewPanel previewPanel;
 	private ChatPanel chatPanel;
+	private String jointPartner;
 
 	public Paint() {
 		Icon iconB = new ImageIcon("./img/blue.png");
@@ -51,7 +56,7 @@ public class Paint implements inviteListener{
 		
 		chatPanel = new ChatPanel(this);
 		drawPad = new PadDraw();
-		previewPanel = new previewPanel();
+		previewPanel = new previewPanel(this);
 		//creates a new padDraw, which is pretty much the paint program
 		previewPanel.setPreferredSize(new Dimension(100, 300));
 		content.add(previewPanel, BorderLayout.EAST);
@@ -176,8 +181,8 @@ public class Paint implements inviteListener{
 	public Image getImage() {
 		return drawPad.getImage();
 	}
-	public void mergeImage() {
-		drawPad.mergeImage();
+	public void mergeImage(Image image) {
+		drawPad.mergeImage(image, true);
 	}
 	
 	public boolean startServer() {
@@ -244,14 +249,24 @@ public class Paint implements inviteListener{
 	@Override
 	public void notifyInvite(String invite) {
 		int option = JOptionPane.showConfirmDialog(drawPad, "you have an invite from " + invite + ", accept?");
+//		chatPanel.notifyMessage("<system> invite code " + option + " from " + invite);
 		switch (option) {
 			case (0):
+				jointPartner = invite;
 				break;
 			case (1):
 				break;
 			case (2):
 				break;
 		}
+	}
+
+	public String getJointPartner() {
+		return jointPartner;
+	}
+
+	public void setJointPartner(String jointPartner) {
+		this.jointPartner = jointPartner;
 	}
 }
 
@@ -277,17 +292,51 @@ class PadDraw extends JComponent{
 		return image;
 	}
 	
-	public void mergeImage() {
-		if (image != null && recient != null) {
-			//Image image = recient.getImage();
-			if (image != null) {
-				Graphics2D g2d = (Graphics2D) image.getGraphics();
-				g2d.drawImage(image, 0, 0, null);
-				g2d.drawImage(this.image, 0, 0, null);
-			}
+	public void mergeImage(Image image2, boolean callRepaint) {
+		if (image != null) {
+			Image oldImage = createImage(getSize().width-300, getSize().height);
+			Graphics2D g2dOld = (Graphics2D) oldImage.getGraphics();
+			g2dOld.drawImage(image, 0, 0, null);
+			Graphics2D g2d = (Graphics2D) image.getGraphics();
+			image2 = TransformWhiteToTransparency(image2);
+			g2d.drawImage(oldImage, 0, 0, null);
+			g2d.drawImage(image2, 0, 0, null);
 		}
+		if (callRepaint)
+			repaint();
 	//	this.image.getGraphics().drawImage(image, 1, 1, null);
 	}
+	
+	  private Image TransformWhiteToTransparency(Image image) {
+	  BufferedImage dest = new BufferedImage(
+			    image.getWidth(null), image.getHeight(null),
+			    BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = dest.createGraphics();
+		g2.drawImage(image, 0, 0, null);
+		g2.dispose();
+		
+	    RGBImageFilter filter = new RGBImageFilter()
+	    {
+	    public int markerRGB = Color.white.getRGB() | 0xFFFFFFFF;
+	      public final int filterRGB(int x, int y, int rgb)
+	      {
+	    	  if ((rgb | 0xFF000000) == markerRGB)  
+	            {  
+	               // Mark the alpha bits as zero - transparent  
+	               return 0x00FFFFFF & rgb;  
+	            }  
+	            else  
+	            {  
+	               // nothing to do  
+	               return rgb;  
+	            }  
+	      }
+	    };
+
+	    ImageProducer ip = new FilteredImageSource(dest.getSource(), filter);
+	    return Toolkit.getDefaultToolkit().createImage(ip);
+	  }
+	  
 	//Now for the constructors
 	public PadDraw(){
 		setDoubleBuffered(false);
@@ -318,7 +367,7 @@ class PadDraw extends JComponent{
 				currentY = e.getY();
 				if(graphics2D != null)
 				graphics2D.drawLine(oldX, oldY, currentX, currentY);
-				mergeImage();
+//				mergeImage();
 				repaint();
 				oldX = currentX;
 				oldY = currentY;
@@ -376,8 +425,10 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener , Mou
 	private Object[][] servedObjects;
 	private int x,y;
 	private JPopupMenu contextMenu;
+	private Paint paint;
 
-	public previewPanel() {
+	public previewPanel(Paint paint) {
+		this.paint = paint;
 		x=0;
 		y=0;
 		contextMenu = new JPopupMenu();
@@ -386,18 +437,27 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener , Mou
 	}
 	
 	public void paintComponent(Graphics g){
-			Graphics2D g2 = (Graphics2D)g;
-			g.clearRect(0, 0, this.getHeight(), this.getWidth());
-			if (servedObjects != null) {
-				int y = 50;
-				for (Object[] objs : servedObjects) {
-					if (objs[1] != null)
+		String partner = paint.getJointPartner();
+		if (partner == null)
+			partner = "";
+		Graphics2D g2 = (Graphics2D)g;
+		g.clearRect(0, 0, this.getHeight(), this.getWidth());
+		if (servedObjects != null) {
+			int y = 50;
+			for (Object[] objs : servedObjects) {
+				if (objs[1] != null) {
+					if (partner.equals((String)objs[1])) {
+						paint.mergeImage(((ImageIcon)objs[0]).getImage());
+						g2.drawString((String)objs[1] + " (joint session partner)", 0, y-10);
+					}
+					else
 						g2.drawString((String)objs[1], 0, y-10);
-					g2.drawImage(((ImageIcon)objs[0]).getImage(), 0, y, 100, 100, null);
-					y+=150;
 				}
+				g2.drawImage(((ImageIcon)objs[0]).getImage(), 0, y, 100, 100, null);
+				y+=150;
 			}
 		}
+	}
 
 	@Override
 	public void giveObjects(Object[][] objects) {
@@ -437,6 +497,7 @@ class previewPanel extends JPanel implements ConnectionClient.iconListener , Mou
 								@Override
 								public void actionPerformed(ActionEvent arg0) {
 									connectionClient.sendInvite((String) objs[1]);
+									paint.setJointPartner((String) objs[1]);
 									
 								}
 							});
@@ -571,8 +632,10 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 					notifyMessage("<system> cannot connect to nothing");
 			}
 			else if (input.startsWith("/invite")) {
-				if (input.split(" ").length >=2)
+				if (input.split(" ").length >=2) {
 					connectionClient.sendInvite(input.split(" ")[1]);
+					paint.setJointPartner(input.split(" ")[1]);
+				}
 				else
 					notifyMessage("<system> you must specify a username");
 			}
