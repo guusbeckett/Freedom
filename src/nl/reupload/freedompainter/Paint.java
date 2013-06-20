@@ -699,6 +699,13 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 			else if (input.startsWith("/clear")) {
 				view.setText("");
 			}
+			
+			else if (input.startsWith("/sendreverse")) {
+				String string = input.split(" ")[1];
+				if (connectionClient != null) {
+					connectionClient.sendMessage(reverse(string, ""));
+				}
+			}
 			else if (input.startsWith("/saveimg")) {
 				String[] data = input.split(" ");
 				if (data.length >= 2)
@@ -726,6 +733,13 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 			}
 			else notifyMessage("<system> you are offline");
 		}
+	}
+
+	private String reverse(String string, String out) {
+		if (string.length() > 0)
+			reverse(string.substring(1), string.substring(0, 1));
+		else return out;
+		return out;
 	}
 }
 
