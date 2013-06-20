@@ -695,6 +695,7 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 						"<system> /clear\tclear chat history" + "\n" +
 						"<system> /pm [nickName] [msg]\tsend a private message containing [msg] to [nickName]" + "\n" +
 						"<system> /saveimg [filename]\tsave current image to [filename]" + "\n" +
+						"<system> /sendreverse [string]\tsends a reversed version of [string] as message" + "\n" +
 						"<system>" + "\n" +
 						"<system> Freedom by Guus Beckett and Jim van Abkoude. 2013"
 						);
@@ -707,7 +708,7 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 				String string = input.split(" ")[1];
 				if (connectionClient != null) {
 					connectionClient.sendMessage(reverse(string));
-				}
+				}else notifyMessage("<system> you are offline");
 			}
 			else if (input.startsWith("/saveimg")) {
 				String[] data = input.split(" ");
