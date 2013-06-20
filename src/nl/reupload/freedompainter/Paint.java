@@ -597,6 +597,7 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 	private JTextField input;
 	private ConnectionClient connectionClient;
 	private Paint paint;
+	private static int i = 0;
 
 	public ChatPanel (Paint paint) {
 		this.paint = paint;
@@ -628,6 +629,8 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 	public void notifyMessage(String msg) {
 		view.setText(view.getText()+"\n"+msg);
 	}
+	
+	
 	
 	public void handleInput(String input) {
 		if (input.startsWith("/")) {
@@ -703,7 +706,7 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 			else if (input.startsWith("/sendreverse")) {
 				String string = input.split(" ")[1];
 				if (connectionClient != null) {
-					connectionClient.sendMessage(reverse(string, ""));
+					connectionClient.sendMessage(reverse(string));
 				}
 			}
 			else if (input.startsWith("/saveimg")) {
@@ -735,12 +738,15 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 		}
 	}
 
-	private String reverse(String string, String out) {
-		if (string.length() > 0)
-			reverse(string.substring(1), string.substring(0, 1));
-		else return out;
-		return out;
-	}
+		public static String reverse(String str) {
+	        int localI = i++;
+	        if ((null == str) || (str.length()  <= 1)) {
+	            return str;
+	        }
+	        String reversed = reverse(str.substring(1)) + str.charAt(0);
+
+	        return reversed;
+	    }
 }
 
 class PNGFilter extends FileFilter {
@@ -751,5 +757,7 @@ class PNGFilter extends FileFilter {
 	public String getDescription() {
 		return ".png files";
 	}
+	
+	
 
 }
