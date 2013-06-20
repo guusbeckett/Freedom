@@ -612,6 +612,7 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 //		add(view, BorderLayout.CENTER);
 		add(view);
 		add(input);
+		notifyMessage("<system> Welcome to Freedom chat, want to know how to use the console, type /help");
 	}
 	
 	public void setClient(ConnectionClient client) {
