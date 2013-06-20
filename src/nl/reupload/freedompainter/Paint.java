@@ -692,11 +692,12 @@ class ChatPanel extends JPanel implements ActionListener, messageListener {
 						"<system> /stophost\tstop hosting a Freedom server on your system" + "\n" +
 						"<system> /disconnect\tdisconnect from currently connected Freedom server" + "\n" +
 						"<system> /nickname [nickname]\tchange nickname to [nickname]" + "\n" +
-						"<system> /invite [username]\tinvite [username] to a joint session" + "\n" +
+						"<system> /invite [username]\tinvite [username] to a joint session*" + "\n" +
 						"<system> /clear\tclear chat history" + "\n" +
-						"<system> /pm [nickName] [msg]\tsend a private message containing [msg] to [nickName]" + "\n" +
+						"<system> /pm [nickName] [msg]\tsend a private message containing [msg] to [nickName]*" + "\n" +
 						"<system> /saveimg [filename]\tsave current image to [filename]" + "\n" +
-						"<system> /sendreverse [string]\tsends a reversed version of [string] as message" + "\n" +
+						"<system> /sendreverse [string]\tsends a reversed version of [string] as message*" + "\n" +
+						"<system> * this function requires you to be connected to a server" + "\n" +
 						"<system>" + "\n" +
 						"<system> Freedom by Guus Beckett and Jim van Abkoude. 2013"
 						);
