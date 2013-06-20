@@ -40,13 +40,15 @@ public class ConnectionServer {
 							public void run() {
 								System.out.println("Server imageHandler starting");
 								boolean send = false;
+								int tick = 0;
 								while (true) {
 									try {
-										Thread.sleep(1000);
+										Thread.sleep(100);
 									} catch (InterruptedException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
+									tick++;
 									Object[][] data = new Object[handlers.size()][2];
 //									ImageIcon[] images = new ImageIcon[handlers.size()];
 									for (int i=0; i<handlers.size(); i++) {
@@ -71,7 +73,8 @@ public class ConnectionServer {
 											break;
 										}
 									}
-									if (send) {
+									if (send && tick > 9) {
+										tick = 0;
 										System.out.println("Server: Sent "+ data.length+ " images");
 										for (ConnectionHandler handle : handlers) {
 											if (handle.isConnected())

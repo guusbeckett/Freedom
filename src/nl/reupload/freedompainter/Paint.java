@@ -383,7 +383,7 @@ class PadDraw extends JComponent{
 				oldY = e.getY();
 			}
 		});
-		new Timer(100, new ActionListener() {
+		new Timer(1000, new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
